@@ -1,10 +1,12 @@
 import os
 import dotenv
 import asyncio
-import discord # pycord or discord.py ?
+import discord
 
 
 from discord.ext import commands
+from datetime import datetime
+from colorama import Fore, Style
 
 dotenv.load_dotenv()
 
@@ -26,13 +28,13 @@ class Druk(commands.Bot):
         self.token = os.environ["TOKEN"]
         
     async def setup_hook(self):
-        print("Loading All Extensions..")
+        print(f"{Fore.GREEN}[+] {datetime.utcnow()} | Loading All Extensions.. {Style.RESET_ALL}")
         for ext in EXTENSIONS:
             try:
                 await self.load_extension(ext)
             except Exception as e:
                 print(e)
-        print("All Extensions Loaded Successfully.")
+        print(f"{Fore.GREEN}[+] {datetime.utcnow()} | All Extensions Loaded Successfully. {Style.RESET_ALL}")
 
     async def on_ready(self):
         print("Yoo!")
@@ -42,7 +44,7 @@ Druk = Druk()
 
 async def run():
     async with Druk:
-        await Druk.start()
+        await Druk.start(Druk.token)
 
 if __name__ == "__main__":
     asyncio.run(run())
