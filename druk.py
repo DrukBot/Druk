@@ -3,7 +3,7 @@ import dotenv
 import asyncio
 import discord
 import aiosqlite
-import utils
+import utils.utils as utils
 
 
 from discord.ext import commands
@@ -31,14 +31,14 @@ class Druk(commands.Bot):
 
 
     async def setup_hook(self):
-        print(utils.colour("[+] {datetime.utcnow()} | Loading All Extensions...", 'green'))
+        print(utils.log("Loading All Extensions..."))
         for ext in EXTENSIONS:
             try:
                 await self.load_extension(ext)
             except Exception as e:
                 print(e)
-        print(utils.colour("[+] {datetime.utcnow()} | All Extensions Loaded Successfully.", 'green'))
+        print(utils.log("All Extensions Loaded Successfully."))
 
     async def on_ready(self):
-        print(utils.colour(f"[+] {datetime.utcnow()} | Logged in as {self.user}", 'green'))
+        print(utils.log(f"Logged in as {self.user}"))
 
