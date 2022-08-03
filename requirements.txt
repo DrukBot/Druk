@@ -1,2 +1,4 @@
 git+https://github.com/Rapptz/discord.py
-python-dotenv==0.20.0
+python-dotenv
+colorama
+qiosqlite
