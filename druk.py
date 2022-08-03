@@ -37,7 +37,7 @@ class Druk(commands.Bot):
                 await self.load_extension(ext)
             except Exception as e:
                 print(e)
-        print(utils.colour("[+] {datetime.utcnow()} | All Extensions Loaded Successfully.", 'green'))
+        print(utils.colour(f"[+] {datetime.utcnow()} | All Extensions Loaded Successfully.", 'green'))
 
     async def on_ready(self):
         print(utils.colour(f"[+] {datetime.utcnow()} | Logged in as {self.user}", 'green'))
