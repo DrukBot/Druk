@@ -13,7 +13,7 @@ from colorama import Fore, Style
 dotenv.load_dotenv()
 
 EXTENSIONS = [
-
+    "extensions.commands.confessions"
 ]
 
 
