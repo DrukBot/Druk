@@ -19,18 +19,19 @@ EXTENSIONS = [
 
 class Druk(commands.Bot):
     def __init__(self):
-        allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, users=True)
+        allowed_mentions = discord.AllowedMentions(
+            everyone=False, roles=False, users=True
+        )
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(
             command_prefix="d.",
             intents=intents,
             application_id=int(os.environ["APP_ID"]),
-            allowed_mentions=allowed_mentions
+            allowed_mentions=allowed_mentions,
         )
 
         self.token: str = os.environ["TOKEN"]
-
 
     async def setup_hook(self) -> None:
         utils.log("Loading All Extensions...")
@@ -43,4 +44,3 @@ class Druk(commands.Bot):
 
     async def on_ready(self) -> None:
         utils.log(f"Logged in as {self.user}")
-
