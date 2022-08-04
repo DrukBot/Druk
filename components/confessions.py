@@ -15,10 +15,15 @@ class ChangeChannel(discord.ui.View):
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
         await self.db.update(
             "confessions",
-            {"channel_id" : self.channel.id},
+            {"channel_id": self.channel.id},
             f"guild_id = {ctx.guild_id}",
         )
-        await ctx.response.send_message(embed=Embed.SUCCESS("Updated Confession Channel!", f"{self.channel.mention} is now configured as confession channel."))
+        await ctx.response.send_message(
+            embed=Embed.SUCCESS(
+                "Updated Confession Channel!",
+                f"{self.channel.mention} is now configured as confession channel.",
+            )
+        )
 
     async def interaction_check(self, ctx: discord.Interaction):
         if not ctx.user.guild_permissions.manage_guild:

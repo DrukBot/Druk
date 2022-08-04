@@ -27,7 +27,7 @@ class Druk(commands.Bot):
             intents=intents,
             application_id=int(os.environ["APP_ID"]),
             owner_ids=(
-                391973133965328385, 
+                391973133965328385,
                 859996173943177226,
                 268815279570681857,
             ),

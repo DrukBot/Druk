@@ -86,10 +86,13 @@ class Database:
         )
         await self.conn.commit()
 
-    async def update(self, table: str, values: typing.Dict[str, typing.Any], where: str):
+    async def update(
+        self, table: str, values: typing.Dict[str, typing.Any], where: str
+    ):
         """Update a row in the database."""
         await self.execute(
-            f"UPDATE {table} SET {', '.join(v+'=?' for v in values)} WHERE {where};", values.values()
+            f"UPDATE {table} SET {', '.join(v+'=?' for v in values)} WHERE {where};",
+            values.values(),
         )
         await self.conn.commit()
 
