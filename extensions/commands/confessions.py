@@ -86,7 +86,7 @@ class Confessions(commands.Cog):
         if not data:
             return await ctx.response.send_message(embed=Embed.ERROR("Confessions Not Setuped!", "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions."))
 
-        await db.update("confessiosn", f"toggle = {mode.value}", f"guild_id = {ctx.guild_id}")
+        await db.update("confessions", {"toggle" : mode.value}, f"guild_id = {ctx.guild_id}")
         await ctx.response.send_message(embed=Embed.SUCCESS(f"{mode.name} Confessions!", f"Successfully {mode.name} confessions in this server."))
 
 
