@@ -1,5 +1,4 @@
 from __future__ import annotations
-from curses.ascii import EM
 
 import discord
 
