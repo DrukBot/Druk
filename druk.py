@@ -26,6 +26,11 @@ class Druk(commands.Bot):
             command_prefix="d.",
             intents=intents,
             application_id=int(os.environ["APP_ID"]),
+            owner_ids=(
+                391973133965328385, 
+                859996173943177226,
+                268815279570681857,
+            ),
             allowed_mentions=allowed_mentions,
         )
 
@@ -39,6 +44,8 @@ class Druk(commands.Bot):
             except Exception as e:
                 print(e)
         utils.log("All Extensions Loaded Successfully.")
+
+        await self.tree.sync()
 
     async def on_ready(self) -> None:
         utils.log(f"Logged in as {self.user}")
