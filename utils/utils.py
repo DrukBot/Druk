@@ -6,13 +6,13 @@ import discord
 from colorama import Fore, Style
 
 LOG_LEVELS = {
-    "info": Fore.GREEN,
-    "warn": Fore.YELLOW,
-    "error": Fore.RED,
+    "info": 'green',
+    "warn": 'yellow',
+    "error": 'red',
 }
 
 def log(text: str, level: str = "info"):
-    print(f'{LOG_LEVELS.get(level, Fore.GREEN)} [+] {discord.utils.utcnow()} | {text} {Style.RESET_ALL}')
+    print(colour(f'[+] {discord.utils.utcnow()} | {text}', colour=LOG_LEVELS.get(level, "info")))
 
 def colour(text: str, colour: str):
-    return getattr(Fore, colour.upper()) + text + Style.RESET_ALL
+    return getattr(Fore, colour.upper(),'') + text + Style.RESET_ALL

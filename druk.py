@@ -13,16 +13,18 @@ from colorama import Fore, Style
 dotenv.load_dotenv()
 
 EXTENSIONS = [
-
+    "extensions.commands.confessions"
 ]
 
 
 class Druk(commands.Bot):
     def __init__(self):
         allowed_mentions = discord.AllowedMentions(everyone=False, roles=False, users=True)
+        intents = discord.Intents.default()
+        intents.members = True
         super().__init__(
             command_prefix="d.",
-            intents=discord.Intents.all(),
+            intents=intents,
             application_id=int(os.environ["APP_ID"]),
             allowed_mentions=allowed_mentions
         )
