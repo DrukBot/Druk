@@ -12,9 +12,7 @@ from colorama import Fore, Style
 
 dotenv.load_dotenv()
 
-EXTENSIONS = [
-    "extensions.commands.confessions",
-]
+EXTENSIONS = ("extensions.commands.confessions",)
 
 
 class Druk(commands.Bot):

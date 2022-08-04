@@ -25,7 +25,9 @@ class Column:
 
 
 class Table:
-    def __init__(self, name: str, columns: typing.List[Column], primary_key: str):
+    def __init__(
+        self, name: str, columns: typing.List[Column], primary_key: str = None
+    ):
         self.name = name
         self.columns = columns
         primary_key = primary_key
@@ -49,13 +51,17 @@ class Database:
 
     async def connect(self) -> Database:
         """Connect to the database."""
-        self.conn = await aiosqlite.connect(self.db_path)
+        self.conn = await aiosqlite.connect(self.url)
         for table in self.tables:
             await self.create_table(table)
         return self
 
+    async def close(self):
+        """Closes the database connection."""
+        await self.conn.close()
+
     async def execute(
-        self, sql: str, parameters: typing.Iterable, all: bool = True
+        self, sql: str, parameters: typing.Iterable = (), all: bool = False
     ) -> typing.Optional[typing.List[aiosqlite.Row]]:
         """Execute a SQL query."""
         async with self.conn.cursor() as cursor:
@@ -67,8 +73,9 @@ class Database:
     async def create_table(self, table: Table):
         """Create a table in the database."""
         await self.execute(table.create())
+        await self.conn.commit()
 
-    async def select(self, table: str, where: str, all: bool = True):
+    async def select(self, table: str, where: str, all: bool = False):
         """Select a row from the database."""
         return await self.execute(f"SELECT * FROM {table} WHERE {where};", all=all)
 
@@ -77,12 +84,14 @@ class Database:
         await self.execute(
             f"INSERT INTO {table} VALUES ({', '.join(['?'] * len(values))});", values
         )
+        await self.conn.commit()
 
     async def update(self, table: str, values: typing.Iterable, where: str):
         """Update a row in the database."""
         await self.execute(
             f"UPDATE {table} SET {', '.join(values)} WHERE {where};", values
         )
+        await self.conn.commit()
 
     async def upsert(self, table: str, values: typing.Iterable, where: str):
         """Upsert a row in the database."""
@@ -90,11 +99,9 @@ class Database:
             f"INSERT OR REPLACE INTO {table} VALUES ({', '.join(['?'] * len(values))});",
             values,
         )
+        await self.conn.commit()
 
     async def delete(self, table: str, where: str):
         """Delete a row in the database."""
         await self.execute(f"DELETE FROM {table} WHERE {where};")
-
-    async def close(self):
-        """Close the database connection."""
-        await self.conn.close()
+        await self.conn.commit()

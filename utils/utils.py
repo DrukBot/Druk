@@ -1,4 +1,4 @@
-__all__ = ("colour",)
+__all__ = ("colour", "Embed")
 
 import discord
 from colorama import Fore, Style
@@ -21,3 +21,30 @@ def log(text: str, level: str = "info"):
 
 def colour(text: str, colour: str):
     return getattr(Fore, colour.upper(), "") + text + Style.RESET_ALL
+
+
+class COLOURS:
+    def __getattribute__(self, name: str) -> discord.Colour:
+        return getattr(discord.Colour, name.lower())()
+
+
+COLOURS = COLOURS()
+
+
+class Embed(discord.Embed):
+    def __init__(self, color=COLOURS.green, fields=(), field_inline=False, **kwargs):
+        super().__init__(color=color, **kwargs)
+        for n, v in fields:
+            self.add_field(name=n, value=v, inline=field_inline)
+
+    @classmethod
+    def SUCCESS(cls, title: str, description: str):
+        embed = discord.Embed(description=description, colour=COLOURS.green)
+        embed.set_author(name=title)
+        return embed
+
+    @classmethod
+    def ERROR(cls, title: str, description: str):
+        embed = cls(description=description, colour=COLOURS.red)
+        embed.set_author(name=title)
+        return embed
