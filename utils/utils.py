@@ -40,11 +40,21 @@ class Embed(discord.Embed):
     @classmethod
     def SUCCESS(cls, title: str, description: str):
         embed = discord.Embed(description=description, colour=COLOURS.green)
-        embed.set_author(name=title, icon_url=discord.PartialEmoji(name="success", id="1004762059981983754", animated=False))
+        embed.set_author(
+            name=title,
+            icon_url=discord.PartialEmoji(
+                name="success", id="1004762059981983754", animated=False
+            ),
+        )
         return embed
 
     @classmethod
     def ERROR(cls, title: str, description: str):
         embed = cls(description=description, colour=COLOURS.red)
-        embed.set_author(name=title, icon_url=discord.PartialEmoji(name="wrong", id="1004762039618633839", animated=False))
+        embed.set_author(
+            name=title,
+            icon_url=discord.PartialEmoji(
+                name="wrong", id="1004762039618633839", animated=False
+            ),
+        )
         return embed

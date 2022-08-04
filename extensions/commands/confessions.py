@@ -63,14 +63,14 @@ class Confessions(commands.Cog):
             (ctx.guild_id, channel.id, "ENABLE", "ENABLE", "ENABLE", None),
         )
         embed = Embed(
-            title="Setup Complete!",
+            title="<:success:1004762059981983754> Setup Complete!",
             description=f"Now you can use confess anonymously in {channel.mention} using `/confess` command in the server.",
         )
         embed.add_field(
             name="HelpFul Tips To Manage Confessions:",
             value="`1.` Only Members with `Manage Server` permission can manage confessions\n\n"
             "`2.` If you want NSFW Free Confessions Enable NSFW Detection Feature by `/confessions detect_nsfw` command.\n\n"
-            "`3.` You can also Enable Image Support for confessions using `/confessions img` command."
+            "`3.` You can also Enable Image Support for confessions using `/confessions img` command.\n\n"
             "`4.` You can Temporarily Enable/Disable Confessions using `/confessions toggle` command.",
         )
         await ctx.response.send_message(embed=embed)
@@ -106,6 +106,59 @@ class Confessions(commands.Cog):
                 f"Successfully {mode.name} confessions in this server.",
             )
         )
+
+    @confessions.command(name="detectnsfw", description="Toggle NSFW Detection feature for Confessions.")
+    @app_commands.describe(mode="Choose a option")
+    @app_commands.choices(mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disbale", value="DISABLE")])
+    async def detectnsfw(self, ctx: discord.Interaction, mode: Choice[str]):
+        db = self.db
+        data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
+
+        if not data:
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Not Setuped!",
+                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                )
+            )
+
+        await db.update(
+            "confessions", {"detect_nsfw": mode.value}, f"guild_id = {ctx.guild_id}"
+        )
+        await ctx.response.send_message(
+            embed=Embed.SUCCESS(
+                f"{mode.name} NSFW Detection!",
+                f"Successfully {mode.name} NSFW content detection for confessions in this server.",
+            )
+        )
+
+
+    @confessions.command(name="image_support", description="Toggle Image Support feature for Confessions.")
+    @app_commands.describe(mode="Choose a option")
+    @app_commands.choices(mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disbale", value="DISABLE")])
+    async def detectnsfw(self, ctx: discord.Interaction, mode: Choice[str]):
+        db = self.db
+        data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
+
+        if not data:
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Not Setuped!",
+                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                )
+            )
+
+        await db.update(
+            "confessions", {"allow_img": mode.value}, f"guild_id = {ctx.guild_id}"
+        )
+        await ctx.response.send_message(
+            embed=Embed.SUCCESS(
+                f"{mode.name} Image Support!",
+                f"Successfully {mode.name} Image Support for confessions in this server.",
+            )
+        )
+
+
 
 
 confessions_table = Table(
