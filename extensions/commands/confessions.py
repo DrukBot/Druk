@@ -1,9 +1,11 @@
 from __future__ import annotations
+from curses.ascii import EM
 
 import discord
 
 from discord.ext import commands
 from discord import app_commands
+from discord.app_commands import Choice
 
 from utils.utils import Embed
 from utils.db import Database, Table, Column
@@ -26,7 +28,7 @@ class Confessions(commands.Cog):
         name="confessions", description="Post anonymous confessions"
     )
 
-    @app_commands.command(name="setup", description="Setup Confession in your server.")
+    @confessions.command(name="setup", description="Setup Confession in your server.")
     @app_commands.describe(channel="The channel in which confessions will be posted.")
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
@@ -72,6 +74,20 @@ class Confessions(commands.Cog):
             "`4.` You can Temporarily Enable/Disable Confessions using `/confessions toggle` command.",
         )
         await ctx.response.send_message(embed=embed)
+
+
+    @confessions.command(name="toggle", description="Toggle the confessions in your server")
+    @app_commands.describe(mode="Choose a option")
+    @app_commands.choices(mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disbale", value="DISABLE")])
+    async def toggle(self, ctx: discord.Interaction, mode: Choice[str]):
+        db = self.db
+        data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
+
+        if not data:
+            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Not Setuped!", "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions."))
+
+        await db.update("confessiosn", f"toggle = {mode.value}", f"guild_id = {ctx.guild_id}")
+        await ctx.response.send_message(embed=Embed.SUCCESS(f"{mode.name} Confessions!", f"Successfully {mode.name} confessions in this server."))
 
 
 confessions_table = Table(
