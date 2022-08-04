@@ -1,16 +1,14 @@
 import os
 import dotenv
-import asyncio
 import discord
-import aiosqlite
 import utils.utils as utils
 
 
 from discord.ext import commands
-from datetime import datetime
-from colorama import Fore, Style
+
 
 dotenv.load_dotenv()
+
 
 EXTENSIONS = ("extensions.commands.confessions",)
 
