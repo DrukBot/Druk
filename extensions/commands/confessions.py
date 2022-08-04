@@ -7,6 +7,7 @@ from discord import app_commands
 from discord.app_commands import Choice
 
 from utils.utils import Embed
+from components.confessions import ChangeChannel
 from utils.db import Database, Table, Column
 
 
@@ -39,7 +40,7 @@ class Confessions(commands.Cog):
                     "Confessions is Already Setuped!",
                     f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
                 ),
-                view="TBD",
+                view=ChangeChannel(self.db, channel),
             )
 
         perms = channel.permissions_for(ctx.guild.me)
