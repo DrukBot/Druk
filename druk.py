@@ -40,5 +40,7 @@ class Druk(commands.Bot):
                 print(e)
         utils.log("All Extensions Loaded Successfully.")
 
+        await self.tree.sync()
+
     async def on_ready(self) -> None:
         utils.log(f"Logged in as {self.user}")
