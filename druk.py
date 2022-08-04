@@ -13,7 +13,7 @@ from colorama import Fore, Style
 dotenv.load_dotenv()
 
 EXTENSIONS = [
-    "extensions.commands.confessions"
+    "extensions.commands.confessions",
 ]
 
 
@@ -29,18 +29,18 @@ class Druk(commands.Bot):
             allowed_mentions=allowed_mentions
         )
 
-        self.token = os.environ["TOKEN"]
+        self.token: str = os.environ["TOKEN"]
 
 
-    async def setup_hook(self):
-        print(utils.log("Loading All Extensions..."))
+    async def setup_hook(self) -> None:
+        utils.log("Loading All Extensions...")
         for ext in EXTENSIONS:
             try:
                 await self.load_extension(ext)
             except Exception as e:
                 print(e)
-        print(utils.log("All Extensions Loaded Successfully."))
+        utils.log("All Extensions Loaded Successfully.")
 
-    async def on_ready(self):
-        print(utils.log(f"Logged in as {self.user}"))
+    async def on_ready(self) -> None:
+        utils.log(f"Logged in as {self.user}")
 
