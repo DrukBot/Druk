@@ -117,7 +117,7 @@ class Confessions(commands.Cog):
     @app_commands.choices(
         mode=[
             Choice(name="Enable", value="ENABLE"),
-            Choice(name="Disbale", value="DISABLE"),
+            Choice(name="Disable", value="DISABLE"),
         ]
     )
     @app_commands.guild_only()
@@ -151,7 +151,7 @@ class Confessions(commands.Cog):
     @app_commands.choices(
         mode=[
             Choice(name="Enable", value="ENABLE"),
-            Choice(name="Disbale", value="DISABLE"),
+            Choice(name="Disable", value="DISABLE"),
         ]
     )
     @app_commands.guild_only()
@@ -186,7 +186,7 @@ class Confessions(commands.Cog):
     @app_commands.choices(
         mode=[
             Choice(name="Enable", value="ENABLE"),
-            Choice(name="Disbale", value="DISABLE"),
+            Choice(name="Disable", value="DISABLE"),
         ]
     )
     @app_commands.guild_only()

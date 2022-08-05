@@ -105,7 +105,7 @@ class Report(commands.Cog):
         await ctx.response.send_message(embed=embed)
 
     @reportconfig.command(
-        "role", description="Setup the ping role for the report system."
+        name="role", description="Setup the ping role for the report system."
     )
     @app_commands.describe(role="The role that will be pinged when a report is made.")
     @app_commands.guild_only()
