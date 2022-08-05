@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import dotenv
 import discord
 import aiohttp
 
@@ -12,6 +14,7 @@ from utils.utils import Embed
 from components.confessions import ChangeChannel, SendConfession
 from utils.db import Database, Table, Column
 
+dotenv.load_dotenv()
 
 class Confessions(commands.Cog):
     def __init__(self, bot):
@@ -32,7 +35,7 @@ class Confessions(commands.Cog):
         payload = '{"url": "' + image_url + '"}'
         headers = {
             "content-type": "application/json",
-            "x-rapidapi-key": "key",
+            "x-rapidapi-key": os.environ["RAPIDAPI_KEY"],
             "x-rapidapi-host": "nsfw-image-classification1.p.rapidapi.com",
         }
 
