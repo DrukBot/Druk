@@ -1,8 +1,7 @@
-from errno import EMEDIUMTYPE
-from turtle import title
-from typing import Optional
 import discord
 
+
+from typing import Optional
 
 from utils.utils import Embed
 
