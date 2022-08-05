@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import discord
+import aiohttp
 
 from typing import Optional
 from discord.ext import commands
@@ -25,6 +26,31 @@ class Confessions(commands.Cog):
     async def cog_unload(self) -> None:
         await self.db.close()
 
+    @staticmethod
+    async def detectNSFW(image_url: str):
+        url = "https://nsfw-image-classification1.p.rapidapi.com/img/nsfw"
+        payload = '{"url": "' + image_url + '"}'
+        headers = {
+            "content-type": "application/json",
+            "x-rapidapi-key": "key",
+            "x-rapidapi-host": "nsfw-image-classification1.p.rapidapi.com",
+        }
+
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url, data=payload, headers=headers)
+
+        if response.status == 200:
+            json = await response.json()
+            if round(json["NSFW_Prob"]) == 1:
+                return True
+            elif round(json["NSFW_Prob"]) == 0:
+                return False
+            else:
+                return False
+
+        else:
+            return False
+
     confessions = app_commands.Group(
         name="confessions", description="Post anonymous confessions"
     )
@@ -38,13 +64,15 @@ class Confessions(commands.Cog):
         data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
 
         if data:
-            return await ctx.response.send_message(
+            view = ChangeChannel(self.db, channel)
+            view.message = await ctx.response.send_message(
                 embed=Embed.SUCCESS(
                     "Confessions is Already Setuped!",
                     f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
                 ),
-                view=ChangeChannel(self.db, channel),
+                view=view,
             )
+            return
 
         perms = channel.permissions_for(ctx.guild.me)
         if (
@@ -75,6 +103,7 @@ class Confessions(commands.Cog):
             "`2.` If you want NSFW Free Confessions Enable NSFW Detection Feature by `/confessions detect_nsfw` command.\n\n"
             "`3.` You can also Enable Image Support for confessions using `/confessions img` command.\n\n"
             "`4.` You can Temporarily Enable/Disable Confessions using `/confessions toggle` command.",
+            inline=False,
         )
         await ctx.response.send_message(embed=embed)
 
@@ -216,8 +245,16 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        if data[4] == "ENABLE":
-            return "NSFW Detection is not implemented yet."
+        if data[4] == "ENABLE" and image is not None:
+            detect = self.detectNSFW(image.url)
+            if detect:
+                return await ctx.response.send_message(
+                    embed=Embed.ERROR(
+                        "NSFW Detected!", "NSFW content detected in the image."
+                    )
+                )
+            else:
+                pass
 
         image_url = image.url if image is not None else None
         channel = ctx.guild.get_channel(int(data[1]))
