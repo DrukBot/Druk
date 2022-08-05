@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import discord
 
+from typing import Optional
 from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import Choice
 
 from utils.utils import Embed
-from components.confessions import ChangeChannel
+from components.confessions import ChangeChannel, SendConfession
 from utils.db import Database, Table, Column
 
 
@@ -30,6 +31,8 @@ class Confessions(commands.Cog):
 
     @confessions.command(name="setup", description="Setup Confession in your server.")
     @app_commands.describe(channel="The channel in which confessions will be posted.")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
         data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
@@ -85,6 +88,8 @@ class Confessions(commands.Cog):
             Choice(name="Disbale", value="DISABLE"),
         ]
     )
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
     async def toggle(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
         data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
@@ -107,9 +112,18 @@ class Confessions(commands.Cog):
             )
         )
 
-    @confessions.command(name="detectnsfw", description="Toggle NSFW Detection feature for Confessions.")
+    @confessions.command(
+        name="detectnsfw", description="Toggle NSFW Detection feature for Confessions."
+    )
     @app_commands.describe(mode="Choose a option")
-    @app_commands.choices(mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disbale", value="DISABLE")])
+    @app_commands.choices(
+        mode=[
+            Choice(name="Enable", value="ENABLE"),
+            Choice(name="Disbale", value="DISABLE"),
+        ]
+    )
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
     async def detectnsfw(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
         data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
@@ -132,11 +146,20 @@ class Confessions(commands.Cog):
             )
         )
 
-
-    @confessions.command(name="image_support", description="Toggle Image Support feature for Confessions.")
+    @confessions.command(
+        name="image_support",
+        description="Toggle Image Support feature for Confessions.",
+    )
     @app_commands.describe(mode="Choose a option")
-    @app_commands.choices(mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disbale", value="DISABLE")])
-    async def detectnsfw(self, ctx: discord.Interaction, mode: Choice[str]):
+    @app_commands.choices(
+        mode=[
+            Choice(name="Enable", value="ENABLE"),
+            Choice(name="Disbale", value="DISABLE"),
+        ]
+    )
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def image_support(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
         data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
 
@@ -158,18 +181,65 @@ class Confessions(commands.Cog):
             )
         )
 
+    @app_commands.command(name="confess", description="Post anonymous confessions")
+    @app_commands.describe(image="The image to be posted.")
+    async def confess(
+        self, ctx: discord.Interaction, image: Optional[discord.Attachment] = None
+    ):
+        db = self.db
 
+        data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
+
+        if not data:
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Not Setuped!",
+                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                ),
+                ephemeral=True,
+            )
+
+        if data[2] == "DISABLE":
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Disabled!", "Confessions are disabled in this server."
+                ),
+                ephemeral=True,
+            )
+
+        if data[3] == "DISABLE" and image is not None:
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Image Support Disabled!",
+                    "Image support for confessions is disabled in this server.",
+                ),
+                ephemeral=True,
+            )
+
+        if data[4] == "ENABLE":
+            return "NSFW Detection is not implemented yet."
+
+        image_url = image.url if image is not None else None
+        channel = ctx.guild.get_channel(int(data[1]))
+        if channel is None:
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Channel Not Found!",
+                    "Confessions channel is not found in this server. The channel is invalid or maybe deleted.",
+                )
+            )
+        await ctx.response.send_modal(SendConfession(db, channel, image_url))
 
 
 confessions_table = Table(
     "confessions",
     columns=[
-        Column("guild_id", int),
-        Column("channel_id", int),
-        Column("toggle", str),
-        Column("allow_img", str),
-        Column("detect_nsfw", str),
-        Column("blacklisted_users", str),
+        Column("guild_id", int),  # 0
+        Column("channel_id", int),  # 1
+        Column("toggle", str),  # 2
+        Column("allow_img", str),  # 3
+        Column("detect_nsfw", str),  # 4
+        Column("blacklisted_users", str),  # 5
     ],
 )
 

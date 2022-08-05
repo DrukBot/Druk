@@ -1,3 +1,6 @@
+from errno import EMEDIUMTYPE
+from turtle import title
+from typing import Optional
 import discord
 
 
@@ -41,3 +44,38 @@ class ChangeChannel(discord.ui.View):
             view.disable = True
 
         await self.message.edit(view=self)
+
+
+class SendConfession(discord.ui.Modal, title="Send Confession"):
+    content = discord.ui.TextInput(
+        label="Confession",
+        placeholder="Enter your confession here",
+        style=discord.TextStyle.paragraph,
+        required=True,
+        min_length=25,
+        max_length=4000,
+    )
+
+    def __init__(self, db, channel: discord.TextChannel, image: Optional[str] = None):
+        super().__init__()
+        self.db = db
+        self.channel = channel
+        self.image = image
+
+    async def on_submit(self, ctx: discord.Interaction):
+        channel = self.channel
+        content = self.content.value
+        image_url = self.image
+
+        embed = Embed(description=content, color=discord.Color.random())
+        embed.set_author(name="Anonymous Confession")
+        if image_url:
+            embed.set_image(url=image_url)
+
+        await channel.send(embed=embed)
+        await ctx.response.send_message(
+            embed=Embed.SUCCESS(
+                "Confession Sent!", "You anonymous confession has been sent."
+            ),
+            ephemeral=True,
+        )
