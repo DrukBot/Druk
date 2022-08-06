@@ -195,7 +195,7 @@ class Report(commands.Cog):
         anon="Wheather to send report anonymously or not",
         proof="Attach a image for a proof.",
     )
-    @app_commands.choices(anon=[Choice(name="Yes", value=True), Choice(name="No", value=False)])
+    @app_commands.choices(anon=[Choice(name="Yes", value="YES"), Choice(name="No", value="NO")])
     @app_commands.guild_only()
     async def report(
         self,
@@ -229,10 +229,15 @@ class Report(commands.Cog):
             threadSupport = True
         else:
             threadSupport = False
+        
+        if anon.value == "YES":
+            anon = True
+        else:
+            anon = False
 
         await ctx.response.send_modal(
             SubmitReport(
-                channel, role, threadSupport, proof.url if proof else None, anon.value
+                channel, role, threadSupport, proof.url if proof else None, anon
             )
         )
 
