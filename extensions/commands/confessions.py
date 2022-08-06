@@ -65,16 +65,15 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
-        data = await db.select("confessions", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,))
 
         if data:
-            view = ChangeChannel(self.db, channel)
-            view.message = await ctx.response.send_message(
+            await ctx.response.send_message(
                 embed=Embed.SUCCESS(
                     "Confessions is Already Setuped!",
                     f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
                 ),
-                view=view,
+                view=ChangeChannel(self.db, channel),
             )
             return
 

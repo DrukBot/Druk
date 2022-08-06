@@ -11,7 +11,6 @@ class ChangeChannel(discord.ui.View):
         super().__init__(timeout=30)
         self.db = db
         self.channel = channel
-        self.message = None
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
@@ -37,12 +36,6 @@ class ChangeChannel(discord.ui.View):
             )
         else:
             return True
-
-    async def on_timeout(self):
-        for view in self.children:
-            view.disable = True
-
-        await self.message.edit(view=self)
 
 
 class SendConfession(discord.ui.Modal, title="Send Confession"):
