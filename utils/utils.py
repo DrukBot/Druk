@@ -44,7 +44,7 @@ class Embed(discord.Embed):
             name=title,
             icon_url=discord.PartialEmoji(
                 name="success", id="1004762059981983754", animated=False
-            ),
+            ).url,
         )
         return embed
 
@@ -55,6 +55,6 @@ class Embed(discord.Embed):
             name=title,
             icon_url=discord.PartialEmoji(
                 name="wrong", id="1004762039618633839", animated=False
-            ),
+            ).url,
         )
         return embed

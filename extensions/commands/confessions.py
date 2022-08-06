@@ -16,6 +16,7 @@ from utils.db import Database, Table, Column
 
 dotenv.load_dotenv()
 
+
 class Confessions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

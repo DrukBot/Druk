@@ -75,7 +75,9 @@ class Miscellaneous(commands.Cog):
         ],
         type=[Choice(name="Truth", value="truth"), Choice(name="Dare", value="dare")],
     )
-    async def t_or_d(self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]):
+    async def t_or_d(
+        self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]
+    ):
         data = {"category": category.value, "type": type.value}
 
         async with aiohttp.ClientSession() as session:

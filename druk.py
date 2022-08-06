@@ -10,7 +10,12 @@ from discord.ext import commands
 dotenv.load_dotenv()
 
 
-EXTENSIONS = ("extensions.commands.confessions", "extensions.commands.misc", "extensions.commands.report", "extensions.events.error_handler")
+EXTENSIONS = (
+    "extensions.commands.confessions",
+    "extensions.commands.misc",
+    "extensions.commands.report",
+    "extensions.events.error_handler",
+)
 
 
 class Druk(commands.Bot):
