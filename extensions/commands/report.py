@@ -61,7 +61,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
-        data = await db.select("report", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
 
         if data:
             view = ChangeChannel(self.db, channel)
@@ -112,7 +112,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def role(self, ctx: discord.Interaction, role: discord.Role):
         db = self.db
-        data = await db.select("report", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
 
         if not data:
             return await ctx.response.send_message(
@@ -144,7 +144,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def toggle(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.select("report", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
 
         if not data:
             return await ctx.response.send_message(
@@ -176,7 +176,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def thread(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.select("report", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
 
         if not data:
             return await ctx.response.send_message(
@@ -212,7 +212,7 @@ class Report(commands.Cog):
         proof: Optional[discord.Attachment] = None,
     ):
         db = self.db
-        data = await db.select("report", f"guild_id = {ctx.guild_id}")
+        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
 
         if not data:
             return await ctx.response.send_message(
