@@ -135,7 +135,7 @@ class Report(commands.Cog):
     )
     @app_commands.describe(mode="Choose a option")
     @app_commands.choices(
-        mode=[Choice("Enable", "ENABLE"), Choice("Disable", "DISABLE")]
+        mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disable", value="DISABLE")]
     )
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(manage_guild=True)
@@ -164,7 +164,7 @@ class Report(commands.Cog):
     )
     @app_commands.describe(mode="Choose a option")
     @app_commands.choices(
-        mode=[Choice("Enable", "ENABLE"), Choice("Disable", "DISABLE")]
+        mode=[Choice(name="Enable", value="ENABLE"), Choice(name="Disable", value="DISABLE")]
     )
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(manage_guild=True)
@@ -195,7 +195,7 @@ class Report(commands.Cog):
         anon="Wheather to send report anonymously or not",
         proof="Attach a image for a proof.",
     )
-    @app_commands.choices(anon=[Choice("Yes", True), Choice("No", False)])
+    @app_commands.choices(anon=[Choice(name="Yes", value=True), Choice(name="No", value=False)])
     @app_commands.guild_only()
     async def report(
         self,
