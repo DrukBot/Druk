@@ -200,7 +200,7 @@ class Report(commands.Cog):
     async def report(
         self,
         ctx: discord.Interaction,
-        anon: Choice[bool],
+        anon: Choice[str],
         proof: Optional[discord.Attachment] = None,
     ):
         db = self.db
