@@ -15,31 +15,35 @@ class Moderation(commands.Cog):
     @moderation.command(name="slowmode", description="Sets the slowmode duration for the channel")
     @app_commands.choices(
         measure=[
-            Choice(name="seconds"),
-            Choice(name="minutes"),
-            Choice(name="hours")
+            Choice(name="seconds", value="seconds"),
+            Choice(name="minutes", value="minutes"),
+            Choice(name="hours", value="hours")
         ]
     )
-    @app_commands.checks.has_permission(manage_channels=True, administrator=True)
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_channels=True, administrator=True)
     async def slowmode(self, ctx: discord.Interaction, time: int, measure: Choice[str]):
         if time == 0:
             await ctx.channel.slowmode_delay(time)
-            embed = Embed.SUCCESS(
-                "Slowmode Disabled", "Slowmode has now been disabled in this channel"
+            embed = Embed(
+                title="Slowmode Disabled", description="Slowmode has now been disabled in this channel"
             )
         else:  
-            if measure.name == "seconds":
+            if measure.value == "seconds":
                 pass
-            elif measure.name == "minutes":
+            elif measure.value == "minutes":
                 slowmode_seconds = time * 60
-            elif measure.name == "hours":
+            elif measure.value == "hours":
                 slowmode_seconds = time * 3600
 
             await ctx.channel.slowmode_delay(slowmode_seconds)
 
-            embed = Embed.SUCCESS(
-                "Slowmode Enabled", f"Slowmode has been set to {time}{measure.name}"
+            embed = Embed(
+                title="Slowmode Enabled", description=f"Slowmode has been set to {time}{measure.name}"
             )
 
         await ctx.response.send_message(embed=embed)
 
+
+async def setup(bot):
+    await bot.add_cog(Moderation(bot))
