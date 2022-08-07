@@ -7,11 +7,10 @@ from utils.utils import Embed
 from datetime import datetime
 from humanfriendly import format_timespan
 
-
 class Meta(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+    
     meta = app_commands.Group(name="meta", description="Get infomation about the bot")
 
     @meta.command(name="latency", description="Returns the latency of the bot")
@@ -26,10 +25,10 @@ class Meta(commands.Cog):
 
         await ctx.response.send_message(embed=embed)
 
-    @meta.command(
-        name="servers", description="The total number of servers the bot is in"
-    )
+
+    @meta.command(name="servers", description="The total number of servers the bot is in")
     async def servers(self, ctx: discord.Interaction):
+        
 
         total_members = 0
         total_bots = 0
@@ -44,10 +43,11 @@ class Meta(commands.Cog):
         embed = Embed(
             title="Servers",
             description=f"**Total Servers** `{len(self.bot.guilds)}`\n**Total Members** `{total_members}`\n**Total Bots** `{total_bots}`",
-            timestamp=discord.utils.utcnow(),
+            timestamp=discord.utils.utcnow()
         )
-
+        
         await ctx.response.send_message(embed=embed)
+
 
     @meta.command(name="uptime", description="Tells you the uptime of the bot")
     async def uptime(self, ctx: discord.Interaction):
@@ -56,10 +56,7 @@ class Meta(commands.Cog):
 
         uptime = datetime.now().timestamp() - self.bot.starting_time
 
-        embed = Embed(
-            title="Uptime",
-            description=f"{format_timespan(uptime)}\n**Started**: `{time_started.strftime('%d/%m/%Y %H:%M:%S')}`",
-        )
+        embed = Embed(title="Uptime", description=f"{format_timespan(uptime)}\n**Started**: `{time_started.strftime('%d/%m/%Y %H:%M:%S')}`")
 
         await ctx.response.send_message(embed=embed)
 
