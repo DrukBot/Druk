@@ -32,7 +32,7 @@ COLOURS = COLOURS()
 
 
 class Embed(discord.Embed):
-    def __init__(self, color=0xa08629, fields=(), field_inline=False, **kwargs):
+    def __init__(self, color=0xA08629, fields=(), field_inline=False, **kwargs):
         super().__init__(color=color, **kwargs)
         for n, v in fields:
             self.add_field(name=n, value=v, inline=field_inline)
