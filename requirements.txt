@@ -1,6 +1,6 @@
+aiohttp==3.7.4.post0
+aiosqlite==0.17.0
+colorama==0.4.4
 git+https://github.com/Rapptz/discord.py
-python-dotenv
-colorama
-aiosqlite
-jishaku
-aiohttp
+humanfriendly==10.0
+python-dotenv==0.20.0
