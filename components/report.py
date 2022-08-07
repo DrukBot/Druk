@@ -13,11 +13,9 @@ class ChangeChannel(discord.ui.View):
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
-        await self.db.update(
-            "report",
-            {"channel_id": self.channel.id},
-            f"guild_id = {ctx.guild_id}",
-        )
+        await self.db.execute("UPDATE report SET channel_id = ? WHERE guild_id = ?", (self.channel.id, ctx.guild_id))
+        await self.db.commit()
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 "Updated Report System Channel!",

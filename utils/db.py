@@ -59,6 +59,10 @@ class Database:
     async def close(self):
         """Closes the database connection."""
         await self.conn.close()
+    
+    async def commit(self):
+        """Commit the current transaction."""
+        await self.conn.commit()
 
     async def execute(
         self, sql: str, parameters: typing.Iterable = (), all: bool = False

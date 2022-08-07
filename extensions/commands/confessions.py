@@ -70,7 +70,7 @@ class Confessions(commands.Cog):
         if data:
             await ctx.response.send_message(
                 embed=Embed.SUCCESS(
-                    "Confessions is Already Setuped!",
+                    "Confessions is Already Setup!",
                     f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
                 ),
                 view=ChangeChannel(self.db, channel),
@@ -129,14 +129,14 @@ class Confessions(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Confessions Not Setuped!",
-                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                    "Confessions Not Setup!",
+                    "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
                 )
             )
 
-        await db.update(
-            "confessions", {"toggle": mode.value}, f"guild_id = {ctx.guild_id}"
-        )
+
+        await db.execute("UPDATE confessions SET toggle = ? WHERE guild_id = ?", (mode.value, ctx.guild_id))
+        await db.commit()
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Confessions!",
@@ -163,14 +163,13 @@ class Confessions(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Confessions Not Setuped!",
-                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                    "Confessions Not Setup!",
+                    "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
                 )
             )
 
-        await db.update(
-            "confessions", {"detect_nsfw": mode.value}, f"guild_id = {ctx.guild_id}"
-        )
+        await db.execute("UPDATE confessions SET detect_nsfw = ? WHERE guild_id = ?", (mode.value, ctx.guild_id))
+        await db.commit()
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} NSFW Detection!",
@@ -198,14 +197,15 @@ class Confessions(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Confessions Not Setuped!",
-                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                    "Confessions Not Setup!",
+                    "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
                 )
             )
 
-        await db.update(
-            "confessions", {"allow_img": mode.value}, f"guild_id = {ctx.guild_id}"
-        )
+
+        await db.execute("UPDATE confessions SET allow_img = ? WHERE guild_id = ?", (mode.value, ctx.guild_id))
+        await db.commit()
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Image Support!",
@@ -225,8 +225,8 @@ class Confessions(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Confessions Not Setuped!",
-                    "Confessions are not setuped in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                    "Confessions Not Setup!",
+                    "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
                 ),
                 ephemeral=True,
             )

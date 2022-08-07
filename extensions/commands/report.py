@@ -67,7 +67,7 @@ class Report(commands.Cog):
             view = ChangeChannel(self.db, channel)
             view.message = await ctx.response.send_message(
                 embed=Embed.SUCCESS(
-                    "Report System is Already Setuped!",
+                    "Report System is Already Setup!",
                     f"Are you sure that you want to change the report channel to: {channel.mention}. If Yes click the button below.",
                 ),
                 view=view,
@@ -92,7 +92,7 @@ class Report(commands.Cog):
         await db.insert("report", (ctx.guild_id, channel.id, None, "ENABLE", "ENABLE"))
 
         embed = Embed(
-            title="Report System Setuped!",
+            title="Report System Setup!",
             description=f"The report channel is now {channel.mention}.",
         )
         embed.add_field(
@@ -117,15 +117,17 @@ class Report(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Report System is Not Setuped!",
+                    "Report System is Not Setup!",
                     "You need to setup the report system first.",
                 )
             )
 
-        await db.update("report", {"role_id": role.id}, f"guild_id = {ctx.guild_id}")
+        await db.execute("UPDATE report SET role_id = ? WHERE guild_id = ?", (role.id, ctx.guild_id))
+        await db.commit()
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
-                "Ping Role Setuped!",
+                "Ping Role Setup!",
                 f"The ping role for report system is now {role.mention}",
             )
         )
@@ -149,12 +151,14 @@ class Report(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Report System is not Setuped!",
+                    "Report System is not Setup!",
                     "Please setup the report system first.",
                 )
             )
 
-        await db.update("report", {"toggle": mode.value}, f"guild_id = {ctx.guild_id}")
+        await db.execute("UPDATE report SET toggle = ? WHERE guild_id = ?", (mode.value, ctx.guild_id))
+        await db.commit()
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Report System!", f"The report system is now {mode.name}."
@@ -181,14 +185,14 @@ class Report(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Report System is not Setuped!",
+                    "Report System is not Setup!",
                     "Please setup the report system first.",
                 )
             )
 
-        await db.update(
-            "report", {"thread_support": mode.value}, f"guild_id = {ctx.guild_id}"
-        )
+        await db.execute("UPDATE report SET thread_support = ? WHERE guild_id = ?", (mode.value, ctx.guild_id))
+        await db.commit()
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Thread Support!",
@@ -217,7 +221,7 @@ class Report(commands.Cog):
         if not data:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Report System is not Setuped!",
+                    "Report System is not Setup!",
                     "Please setup the report system first.",
                 )
             )

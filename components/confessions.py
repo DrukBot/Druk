@@ -14,11 +14,12 @@ class ChangeChannel(discord.ui.View):
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
-        await self.db.update(
-            "confessions",
-            {"channel_id": self.channel.id},
-            f"guild_id = {ctx.guild_id}",
-        )
+        try:
+            await self.db.execute("UPDATE confessions SET channel_id = ? WHERE guild_id = ?", (self.channel.id, ctx.guild_id))
+            await self.db.commit()
+        except Exception as e:
+            print(e)
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 "Updated Confession Channel!",
