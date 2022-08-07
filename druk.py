@@ -16,6 +16,7 @@ EXTENSIONS = (
     "extensions.commands.misc",
     "extensions.commands.report",
     "extensions.commands.meta",
+    "extensions.commands.moderation",
     "extensions.events.error_handler",
 )
 
