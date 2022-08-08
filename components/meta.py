@@ -18,7 +18,7 @@ class CodeRunModal(discord.ui.Modal):
         super().__init__(title="Execute Python Code!")
 
     async def on_submit(self, ctx: discord.Interaction) -> None:
-        await ctx.defer()
+        await ctx.response.defer()
         data = self.code.value
         bot = self.bot
         try:
@@ -32,7 +32,7 @@ class CodeRunModal(discord.ui.Modal):
                 "imp": __import__,
             }
             data = data.replace("”", '"').replace("“", '"')
-            while data.startswith(' ','\t','\n'):
+            while data.startswith((' ','\t','\n')):
                 data = data[1:]
             split = data.splitlines()
             if len(split) == 1:
