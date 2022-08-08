@@ -268,9 +268,9 @@ class Report(commands.Cog):
                 anon = False
 
             await ctx.response.send_modal(
-            SubmitReport(
-                channel, role, threadSupport, proof.url if proof else None, anon
-            )
+                SubmitReport(
+                    channel, role, threadSupport, proof.url if proof else None, anon
+                )
             )
         except Exception as e:
             print(e)

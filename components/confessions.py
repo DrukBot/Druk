@@ -15,9 +15,9 @@ class ChangeChannel(discord.ui.View):
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
         await self.db.execute(
-                "UPDATE confessions SET channel_id = ? WHERE guild_id = ?",
-                (self.channel.id, ctx.guild_id),
-            )
+            "UPDATE confessions SET channel_id = ? WHERE guild_id = ?",
+            (self.channel.id, ctx.guild_id),
+        )
         await self.db.commit()
 
         self.clear_items()
@@ -62,7 +62,11 @@ class SendConfession(discord.ui.Modal, title="Send Confession"):
         content = self.content.value
         image_url = self.image
 
-        embed = Embed(description=content, color=discord.Color.random(), timestamp=discord.utils.utcnow())
+        embed = Embed(
+            description=content,
+            color=discord.Color.random(),
+            timestamp=discord.utils.utcnow(),
+        )
         embed.set_author(name="Anonymous Confession")
         if image_url:
             embed.set_image(url=image_url)

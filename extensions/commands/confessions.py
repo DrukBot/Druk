@@ -46,7 +46,6 @@ class Confessions(commands.Cog):
         else:
             return False
 
-
     confessions = app_commands.Group(
         name="confessions", description="Post anonymous confessions"
     )

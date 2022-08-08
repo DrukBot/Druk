@@ -24,7 +24,8 @@ class ChangeChannel(discord.ui.View):
             embed=Embed.SUCCESS(
                 "Updated Report System Channel!",
                 f"{self.channel.mention} is now configured as rpeorting channel.",
-            ), view=self
+            ),
+            view=self,
         )
 
     async def interaction_check(self, ctx: discord.Interaction):
@@ -33,7 +34,8 @@ class ChangeChannel(discord.ui.View):
                 embed=Embed.ERROR(
                     "You Can't do that",
                     "You don't have required permission to perform that action.",
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
         else:
             return True
@@ -79,7 +81,8 @@ class SubmitReport(discord.ui.Modal, title="Submit Report"):
         )
 
         await ctx.response.send_message(
-            embed=Embed.SUCCESS("Report Sent!", "Your report has been sent."), ephemeral=True
+            embed=Embed.SUCCESS("Report Sent!", "Your report has been sent."),
+            ephemeral=True,
         )
 
         if self.thread:
