@@ -69,7 +69,7 @@ class Meta(commands.Cog):
         await ctx.edit_original_response(embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
-    async def jskpy(self, ctx: discord.Interaction):
+    async def run(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
             return await ctx.response.send_message("You are not allowed to use this command!")
         await ctx.response.send_modal(CodeRunModal(self.bot))

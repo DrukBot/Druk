@@ -1,4 +1,9 @@
-__all__ = ("colour", "Embed")
+__all__ = (
+    "colour",
+    "log",
+    "Embed",
+    "COLOURS",
+)
 
 import discord
 from colorama import Fore, Style

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-_all_ = ("DB",)
+_all_ = (
+    "Database",
+    "Table",
+    "Column",
+)
 
 import typing
 import aiosqlite

@@ -18,7 +18,6 @@ class CodeRunModal(discord.ui.Modal):
         super().__init__(title="Execute Python Code!")
 
     async def on_submit(self, ctx: discord.Interaction) -> None:
-        await ctx.response.defer()
         data = self.code.value
         bot = self.bot
         try:
@@ -40,7 +39,6 @@ class CodeRunModal(discord.ui.Modal):
                     data = f"yield {data}"
             data = textwrap.indent(data, "    ")
             exec(f"async def func():\n{data}", args)
-            await ctx.response.send_message("Running code..",ephemeral=True)
             async for resp in eval("func()", args):
                 resp = str(resp).replace(bot.token, "[TOKEN]")
                 await ctx.channel.send(resp)
