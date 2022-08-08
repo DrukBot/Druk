@@ -82,7 +82,8 @@ class Confessions(commands.Cog):
                 embed=Embed.ERROR(
                     "I Need Permissions!",
                     "I don't have the required permission in the channel.",
-                )
+                ),
+                ephemeral=True,
             )
 
         await db.insert(
@@ -126,7 +127,8 @@ class Confessions(commands.Cog):
                 embed=Embed.ERROR(
                     "Confessions Not Setup!",
                     "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
-                )
+                ),
+                ephemeral=True,
             )
 
         await db.execute(
@@ -138,7 +140,8 @@ class Confessions(commands.Cog):
             embed=Embed.SUCCESS(
                 f"{mode.name} Confessions!",
                 f"Successfully {mode.name} confessions in this server.",
-            )
+            ),
+            ephemeral=True,
         )
 
     @confessions.command(
@@ -164,7 +167,8 @@ class Confessions(commands.Cog):
                 embed=Embed.ERROR(
                     "Confessions Not Setup!",
                     "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
-                )
+                ),
+                ephemeral=True,
             )
 
         await db.execute(
@@ -176,7 +180,8 @@ class Confessions(commands.Cog):
             embed=Embed.SUCCESS(
                 f"{mode.name} NSFW Detection!",
                 f"Successfully {mode.name} NSFW content detection for confessions in this server.",
-            )
+            ),
+            ephemeral=True,
         )
 
     @confessions.command(
@@ -203,7 +208,8 @@ class Confessions(commands.Cog):
                 embed=Embed.ERROR(
                     "Confessions Not Setup!",
                     "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
-                )
+                ),
+                ephemeral=True,
             )
 
         await db.execute(
@@ -216,7 +222,8 @@ class Confessions(commands.Cog):
             embed=Embed.SUCCESS(
                 f"{mode.name} Image Support!",
                 f"Successfully {mode.name} Image Support for confessions in this server.",
-            )
+            ),
+            ephemeral=True,
         )
 
     @app_commands.command(name="confess", description="Post anonymous confessions")
@@ -261,8 +268,10 @@ class Confessions(commands.Cog):
             if detect:
                 return await ctx.response.send_message(
                     embed=Embed.ERROR(
-                        "NSFW Detected!", "NSFW content detected in the image."
-                    )
+                        "NSFW Detected!",
+                        "NSFW content detected in the image.",
+                    ),
+                    ephemeral=True,
                 )
             else:
                 pass
