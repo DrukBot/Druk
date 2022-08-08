@@ -31,20 +31,20 @@ class Moderation(commands.Cog):
     @app_commands.checks.has_permissions(manage_channels=True, administrator=True)
     async def slowmode(self, ctx: discord.Interaction, time: int, measure: Choice[str]):
         if time == 0:
-            await ctx.channel.slowmode_delay(time)
+            await ctx.channel.edit(slowmode_delay=time)
             embed = Embed(
                 title="Slowmode Disabled",
                 description="Slowmode has now been disabled in this channel",
             )
         else:
             if measure.value == "seconds":
-                pass
+                slowmode_seconds = time
             elif measure.value == "minutes":
                 slowmode_seconds = time * 60
             elif measure.value == "hours":
                 slowmode_seconds = time * 3600
 
-            await ctx.channel.slowmode_delay(slowmode_seconds)
+            await ctx.channel.edit(slowmode_delay=slowmode_seconds)
 
             embed = Embed(
                 title="Slowmode Enabled",
