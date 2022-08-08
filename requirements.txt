@@ -5,3 +5,4 @@ git+https://github.com/Rapptz/discord.py
 humanfriendly==10.0
 python-dotenv==0.20.0
 nudepy==0.5.1
+jishaku

@@ -3,7 +3,9 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from utils.utils import Embed
+from components.misc import JSKPyModal
 
+import time
 from datetime import datetime
 from humanfriendly import format_timespan
 
@@ -13,18 +15,6 @@ class Meta(commands.Cog):
         self.bot = bot
 
     meta = app_commands.Group(name="meta", description="Get infomation about the bot")
-
-    @meta.command(name="latency", description="Returns the latency of the bot")
-    async def latency(self, ctx: discord.Interaction):
-
-        latency = self.bot.latency
-        latency = round(latency, 3)
-
-        embed = Embed(title="Latency", timestamp=discord.utils.utcnow())
-
-        embed.add_field(name="Seconds", value=latency)
-
-        await ctx.response.send_message(embed=embed)
 
     @meta.command(
         name="servers", description="The total number of servers the bot is in"
@@ -58,11 +48,27 @@ class Meta(commands.Cog):
 
         embed = Embed(
             title="Uptime",
-            description=f"{format_timespan(uptime)}\n**Started**: `{time_started.strftime('%d/%m/%Y %H:%M:%S')}`",
+            description=f"**Druk Online For**: `{format_timespan(uptime)}`\n**Since**: `{time_started.strftime('%d/%m/%Y %H:%M:%S')}`",
         )
 
         await ctx.response.send_message(embed=embed)
 
+    @meta.command(name="ping", description="Tells you the latency of the bot")
+    async def ping(self, ctx: discord.Interaction):
+            l = self.bot.latency
+            l = round(l, 3)
+            p = time.perf_counter()
+            await ctx.response.send_message("Pong!")
+            embed = Embed(title="Ping", timestamp=discord.utils.utcnow())
+            embed.add_field(name="Websocket Latency", value=l*1000, inline=False)
+            embed.add_field(name="Bot Latency", value=round(time.perf_counter() - p, 3)*1000, inline=False)
+            await ctx.edit_original_response(embed=embed)
+
+    @meta.command(name="jishaku", description="Run a jishaku command in python!")
+    async def jskpy(self, ctx: discord.Interaction):
+        if not (ctx.user.id in self.bot.owner_ids):
+            return await ctx.response.send_message("You are not allowed to use this command!")
+        m = JSKPyModal(ctx)
 
 async def setup(bot):
     await bot.add_cog(Meta(bot))

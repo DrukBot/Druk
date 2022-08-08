@@ -48,6 +48,7 @@ class Druk(commands.Bot):
         for ext in EXTENSIONS:
             try:
                 await self.load_extension(ext)
+                utils.log(f"Loaded Extension: {ext}")
             except Exception as e:
                 print(e)
         utils.log("All Extensions Loaded Successfully.")
