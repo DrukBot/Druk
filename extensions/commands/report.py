@@ -88,7 +88,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "I Need Permissions!",
                     "I don't have the required permission in the channel.",
-                )
+                ), ephemeral=True
             )
 
         await db.insert("report", (ctx.guild_id, channel.id, None, "ENABLE", "ENABLE"))
@@ -123,7 +123,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is Not Setup!",
                     "You need to setup the report system first.",
-                )
+                ), ephemeral=True
             )
 
         await db.execute(
@@ -135,7 +135,7 @@ class Report(commands.Cog):
             embed=Embed.SUCCESS(
                 "Ping Role Setup!",
                 f"The ping role for report system is now {role.mention}",
-            )
+            ), ephemeral=True
         )
 
     @reportconfig.command(
@@ -161,7 +161,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is not Setup!",
                     "Please setup the report system first.",
-                )
+                ), ephemeral=True
             )
 
         await db.execute(
@@ -173,7 +173,7 @@ class Report(commands.Cog):
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Report System!", f"The report system is now {mode.name}."
-            )
+            ), ephemeral=True
         )
 
     @reportconfig.command(
@@ -200,7 +200,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is not Setup!",
                     "Please setup the report system first.",
-                )
+                ), ephemeral=True
             )
 
         await db.execute(
@@ -213,7 +213,7 @@ class Report(commands.Cog):
             embed=Embed.SUCCESS(
                 f"{mode.name} Thread Support!",
                 f"The thread support is now {mode.name} for report system.",
-            )
+            ), ephemeral=True
         )
 
     @app_commands.command(name="report", description="Report a user in your server.")
@@ -241,7 +241,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is not Setup!",
                     "Please setup the report system first.",
-                )
+                ), ephemeral=True
             )
 
         if data[3] == "DISABLE":
@@ -249,7 +249,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is Disabled!",
                     "Report System is Disabled in this server.",
-                )
+                ), ephemeral=True
             )
 
         try:
