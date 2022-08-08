@@ -2,3 +2,5 @@ __pycache__/*
 database/*
 *.env
 *.db
+Profile pic stuff/*
+web/

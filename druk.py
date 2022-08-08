@@ -2,6 +2,7 @@ import os
 import dotenv
 import discord
 import utils.utils as utils
+from datetime import datetime
 
 
 from discord.ext import commands
@@ -10,7 +11,14 @@ from discord.ext import commands
 dotenv.load_dotenv()
 
 
-EXTENSIONS = ("extensions.commands.confessions",)
+EXTENSIONS = (
+    "extensions.commands.confessions",
+    "extensions.commands.misc",
+    "extensions.commands.report",
+    "extensions.commands.meta",
+    "extensions.commands.moderation",
+    "extensions.events.error_handler",
+)
 
 
 class Druk(commands.Bot):
@@ -33,6 +41,7 @@ class Druk(commands.Bot):
         )
 
         self.token: str = os.environ["TOKEN"]
+        self.starting_time = datetime.now().timestamp()
 
     async def setup_hook(self) -> None:
         utils.log("Loading All Extensions...")

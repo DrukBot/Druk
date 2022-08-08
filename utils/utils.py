@@ -32,7 +32,7 @@ COLOURS = COLOURS()
 
 
 class Embed(discord.Embed):
-    def __init__(self, color=COLOURS.green, fields=(), field_inline=False, **kwargs):
+    def __init__(self, color=0xA08629, fields=(), field_inline=False, **kwargs):
         super().__init__(color=color, **kwargs)
         for n, v in fields:
             self.add_field(name=n, value=v, inline=field_inline)
@@ -44,7 +44,7 @@ class Embed(discord.Embed):
             name=title,
             icon_url=discord.PartialEmoji(
                 name="success", id="1004762059981983754", animated=False
-            ),
+            ).url,
         )
         return embed
 
@@ -55,6 +55,6 @@ class Embed(discord.Embed):
             name=title,
             icon_url=discord.PartialEmoji(
                 name="wrong", id="1004762039618633839", animated=False
-            ),
+            ).url,
         )
         return embed
