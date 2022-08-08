@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import os
 import dotenv
 import discord
 import aiohttp
 
+from io import BytesIO
+from nude import Nude
 from typing import Optional
 from discord.ext import commands
 from discord import app_commands
@@ -32,28 +33,19 @@ class Confessions(commands.Cog):
 
     @staticmethod
     async def detectNSFW(image_url: str):
-        url = "https://nsfw-image-classification1.p.rapidapi.com/img/nsfw"
-        payload = '{"url": "' + image_url + '"}'
-        headers = {
-            "content-type": "application/json",
-            "x-rapidapi-key": os.environ["RAPIDAPI_KEY"],
-            "x-rapidapi-host": "nsfw-image-classification1.p.rapidapi.com",
-        }
-
         async with aiohttp.ClientSession() as session:
-            response = await session.post(url, data=payload, headers=headers)
+            async with session.get(image_url) as resp:
+                imageBytes = await resp.read()
 
-        if response.status == 200:
-            json = await response.json()
-            if round(json["NSFW_Prob"]) == 1:
-                return True
-            elif round(json["NSFW_Prob"]) == 0:
-                return False
-            else:
-                return False
+        imageBytes = BytesIO(imageBytes)
+        nude = Nude(imageBytes)
+        nude.parse()
 
+        if nude.result is True:
+            return True
         else:
             return False
+
 
     confessions = app_commands.Group(
         name="confessions", description="Post anonymous confessions"
@@ -266,7 +258,7 @@ class Confessions(commands.Cog):
             )
 
         if data[4] == "ENABLE" and image is not None:
-            detect = self.detectNSFW(image.url)
+            detect = await self.detectNSFW(image.url)
             if detect:
                 return await ctx.response.send_message(
                     embed=Embed.ERROR(

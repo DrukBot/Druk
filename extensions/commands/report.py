@@ -252,24 +252,28 @@ class Report(commands.Cog):
                 )
             )
 
-        role = self.get_role(data[2])
-        channel = self.get_channel(int(data[1]))
+        try:
 
-        if data[4] == "ENABLE":
-            threadSupport = True
-        else:
-            threadSupport = False
+            role = await self.get_role(ctx, data[2])
+            channel = await self.get_channel(ctx, int(data[1]))
 
-        if anon.value == "YES":
-            anon = True
-        else:
-            anon = False
+            if data[4] == "ENABLE":
+                threadSupport = True
+            else:
+                threadSupport = False
 
-        await ctx.response.send_modal(
+            if anon.value == "YES":
+                anon = True
+            else:
+                anon = False
+
+            await ctx.response.send_modal(
             SubmitReport(
                 channel, role, threadSupport, proof.url if proof else None, anon
             )
-        )
+            )
+        except Exception as e:
+            print(e)
 
 
 report_table = Table(

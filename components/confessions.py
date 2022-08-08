@@ -14,16 +14,15 @@ class ChangeChannel(discord.ui.View):
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, ctx: discord.Interaction, button: discord.ui.button):
-        try:
-            await self.db.execute(
+        await self.db.execute(
                 "UPDATE confessions SET channel_id = ? WHERE guild_id = ?",
                 (self.channel.id, ctx.guild_id),
             )
-            await self.db.commit()
-        except Exception as e:
-            print(e)
+        await self.db.commit()
 
-        await ctx.response.send_message(
+        self.clear_items()
+
+        await ctx.response.edit_message(
             embed=Embed.SUCCESS(
                 "Updated Confession Channel!",
                 f"{self.channel.mention} is now configured as confession channel.",
@@ -63,7 +62,7 @@ class SendConfession(discord.ui.Modal, title="Send Confession"):
         content = self.content.value
         image_url = self.image
 
-        embed = Embed(description=content, color=discord.Color.random())
+        embed = Embed(description=content, color=discord.Color.random(), timestamp=discord.utils.utcnow())
         embed.set_author(name="Anonymous Confession")
         if image_url:
             embed.set_image(url=image_url)
@@ -71,7 +70,7 @@ class SendConfession(discord.ui.Modal, title="Send Confession"):
         await channel.send(embed=embed)
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
-                "Confession Sent!", "You anonymous confession has been sent."
+                "Confession Sent!", "Your anonymous confession has been sent."
             ),
             ephemeral=True,
         )

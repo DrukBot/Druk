@@ -19,11 +19,12 @@ class ChangeChannel(discord.ui.View):
         )
         await self.db.commit()
 
-        await ctx.response.send_message(
+        self.clear_items()
+        await ctx.response.edit_message(
             embed=Embed.SUCCESS(
                 "Updated Report System Channel!",
                 f"{self.channel.mention} is now configured as rpeorting channel.",
-            )
+            ), view=self
         )
 
     async def interaction_check(self, ctx: discord.Interaction):
@@ -32,21 +33,15 @@ class ChangeChannel(discord.ui.View):
                 embed=Embed.ERROR(
                     "You Can't do that",
                     "You don't have required permission to perform that action.",
-                )
+                ), ephemeral=True
             )
         else:
             return True
 
-    async def on_timeout(self):
-        for view in self.children:
-            view.disable = True
 
-        await self.message.edit(view=self)
-
-
-class SubmitReport(discord.ui.Modal):
+class SubmitReport(discord.ui.Modal, title="Submit Report"):
     content = discord.ui.TextInput(
-        label="Report Content",
+        label="Report Content:",
         placeholder="Report Content here...",
         style=discord.TextStyle.paragraph,
         min_length=25,
@@ -84,7 +79,7 @@ class SubmitReport(discord.ui.Modal):
         )
 
         await ctx.response.send_message(
-            embed=Embed.SUCCESS("Report Sent!", "Your report has been sent.")
+            embed=Embed.SUCCESS("Report Sent!", "Your report has been sent."), ephemeral=True
         )
 
         if self.thread:
@@ -105,7 +100,7 @@ class ReportAction(discord.ui.View):
     ):
         embed = ctx.message.embeds[0]
         embed.color = COLOURS.green
-        embed.add_field(name="Status", value="Report Solved", inline=False)
+        embed.add_field(name="Status", value="**Report Solved**", inline=False)
         self.clear_items()
         await ctx.response.edit_message(embed=embed, view=self)
 
@@ -113,10 +108,11 @@ class ReportAction(discord.ui.View):
         label="Spam Report", style=discord.ButtonStyle.red, custom_id="spam"
     )
     async def spam_callback(self, ctx: discord.Interaction, button: discord.ui.button):
+        embed = ctx.message.embeds[0]
+        embed.color = COLOURS.red
+        embed.add_field(name="Status", value="**Report Spam**", inline=False)
         self.clear_items()
-        await ctx.response.edit_message(
-            "This Report is marked as spam and deleted.", view=self
-        )
+        await ctx.response.edit_message(embed=embed, view=self)
 
     @discord.ui.button(
         label="Pin Report", style=discord.ButtonStyle.blurple, custom_id="pin"
@@ -126,8 +122,8 @@ class ReportAction(discord.ui.View):
         for i in self.children:
             if i.custom_id == "pin":
                 i.disable = True
+        await ctx.message.edit(view=self)
         await ctx.response.send_message(
             embed=Embed.SUCCESS("Pinned!", "Successfully pinned report, check pins!"),
             ephemeral=True,
-            view=self,
         )

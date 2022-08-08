@@ -1,8 +1,11 @@
 import discord
 
+from typing import Optional
 from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import Choice
+
+
 from utils.utils import Embed
 
 
@@ -43,6 +46,44 @@ class Moderation(commands.Cog):
             )
 
         await ctx.response.send_message(embed=embed)
+
+    
+    @moderation.command(name="lock", description="Locks the channel")
+    @app_commands.describe(channel="The channel to lock")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_channels=True)
+    async def lock(self, ctx: discord.Interaction, channel: discord.TextChannel):
+        try:
+            overwrite = channel.overwrites_for(ctx.guild.default_role)
+
+            if overwrite.send_messages is False:
+                return await ctx.response.send_message(embed=Embed.ERROR("Error!", "This channel is already locked"), ephemeral=True)
+            
+            overwrite.send_messages = False
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.response.send_message(embed=Embed.SUCCESS("Success!", "This channel has been locked"), ephemeral=True)
+        except:
+            await ctx.response.send_message(embed=Embed.ERROR("Error!", "Its seems like i don't have permission to do that."), ephemeral=True)
+
+    
+    @moderation.command(name="unlock", description="Unlocks the channel")
+    @app_commands.describe(channel="The channel to unlock")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_channels=True)
+    async def unlock(self, ctx: discord.Interaction, channel: discord.TextChannel):
+        try:
+            overwrite = channel.overwrites_for(ctx.guild.default_role)
+
+            if overwrite.send_messages is True:
+                return await ctx.response.send_message(embed=Embed.ERROR("Error!", "This channel is already unlocked"), ephemeral=True)
+
+            overwrite.send_messages = True
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.response.send_message(embed=Embed.SUCCESS("Success!", "This channel has been unlocked"), ephemeral=True)
+        except:
+            await ctx.response.send_message(embed=Embed.ERROR("Error!", "Its seems like i don't have permission to do that."), ephemeral=True)
+
+
 
 
 async def setup(bot):
