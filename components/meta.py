@@ -22,7 +22,6 @@ class CodeRunModal(discord.ui.Modal):
         data = self.code.value
         bot = self.bot
         try:
-            print("checked")
             args = {
                 **globals(),
                 "author": ctx.user,
@@ -32,9 +31,7 @@ class CodeRunModal(discord.ui.Modal):
                 "bot": self.bot,
                 "imp": __import__,
             }
-            print("checked")
             data = data.replace("”", '"').replace("“", '"')
-            print("checked")
             while data.startswith((' ','\t','\n')):
                 data = data[1:]
             split = data.splitlines()
