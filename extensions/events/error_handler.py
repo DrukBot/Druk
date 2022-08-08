@@ -1,11 +1,10 @@
+import traceback
 import discord
 
 
 from discord import app_commands
 from discord.ext import commands
-
-from utils.utils import Embed
-
+import utils
 
 class ErrorHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -19,14 +18,20 @@ class ErrorHandler(commands.Cog):
 
         if isinstance(error, app_commands.errors.MissingPermissions):
             await ctx.response.send_message(
-                embed=Embed.ERROR(
+                embed=utils.Embed.ERROR(
                     "Missing Permissions",
                     f"You are missing **{', '.join(error.missing_permissions)}** permission(s) to run this command.",
                 )
             )
 
         else:
-            raise error
+            await ctx.response.send_message(
+                embed=utils.Embed.ERROR(
+                    "Uh oh!",
+                    f'```\n{traceback.format_exc()}\n```',
+                )
+            )
+            utils.log(error, "error")
 
 
 async def setup(bot):

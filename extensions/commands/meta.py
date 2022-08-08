@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from utils.utils import Embed
-from components.misc import JSKPyModal
+from components.meta import CodeRunModal
 
 import time
 from datetime import datetime
@@ -64,11 +64,11 @@ class Meta(commands.Cog):
             embed.add_field(name="Bot Latency", value=round(time.perf_counter() - p, 3)*1000, inline=False)
             await ctx.edit_original_response(embed=embed)
 
-    @meta.command(name="jishaku", description="Run a jishaku command in python!")
+    @meta.command(name="run", description="Run python code!!")
     async def jskpy(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
             return await ctx.response.send_message("You are not allowed to use this command!")
-        m = JSKPyModal(ctx)
+        await ctx.response.send_modal(CodeRunModal(self.bot))
 
 async def setup(bot):
     await bot.add_cog(Meta(bot))
