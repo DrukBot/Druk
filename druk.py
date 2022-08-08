@@ -42,6 +42,7 @@ class Druk(commands.Bot):
 
         self.token: str = os.environ["TOKEN"]
         self.starting_time = datetime.now().timestamp()
+        self.invite_link = discord.utils.oauth_url(client_id=os.environ['APP_ID'], permissions=discord.Permissions.administrator(), scopes=['bot', 'applications.commands'])
 
     async def setup_hook(self) -> None:
         utils.log("Loading All Extensions...")
