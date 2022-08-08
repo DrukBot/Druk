@@ -2,12 +2,8 @@ __pycache__/*
 database/*
 *.env
 *.db
+*.pyc
 Profile pic stuff/*
 web/
 components/__pycache__/*
 utils/__pycache__/*
-extensions/commands/__pycache__/confessions.cpython-310.pyc
-extensions/commands/__pycache__/meta.cpython-310.pyc
-extensions/commands/__pycache__/misc.cpython-310.pyc
-extensions/commands/__pycache__/moderation.cpython-310.pyc
-extensions/commands/__pycache__/report.cpython-310.pyc
