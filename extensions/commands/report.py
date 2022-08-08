@@ -100,7 +100,7 @@ class Report(commands.Cog):
         embed.add_field(
             name="Helpfull Tips to manage the report system.",
             value="`1.` Only Member with `Manage Server` permission can manage the report system.\n\n"
-            "`2.` Toggle Report system with `/reportconfig toggle` command."
+            "`2.` Toggle Report system with `/reportconfig toggle` command.\n\n"
             "`3.` Toggle Thread Support for Report system with `/reportconfig thread` command.",
             inline=False,
         )
