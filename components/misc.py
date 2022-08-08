@@ -19,5 +19,3 @@ class JSKPyModal(discord.ui.Modal):
     async def on_submit(self, ctx: discord.Interaction) -> None:
         await ctx.defer()
         await ctx.response.send_message()
-
-

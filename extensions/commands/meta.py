@@ -55,20 +55,27 @@ class Meta(commands.Cog):
 
     @meta.command(name="ping", description="Tells you the latency of the bot")
     async def ping(self, ctx: discord.Interaction):
-            l = self.bot.latency
-            l = round(l, 3)
-            p = time.perf_counter()
-            await ctx.response.send_message("Pong!")
-            embed = Embed(title="Ping", timestamp=discord.utils.utcnow())
-            embed.add_field(name="Websocket Latency", value=l*1000, inline=False)
-            embed.add_field(name="Bot Latency", value=round(time.perf_counter() - p, 3)*1000, inline=False)
-            await ctx.edit_original_response(embed=embed)
+        l = self.bot.latency
+        l = round(l, 3)
+        p = time.perf_counter()
+        await ctx.response.send_message("Pong!")
+        embed = Embed(title="Ping", timestamp=discord.utils.utcnow())
+        embed.add_field(name="Websocket Latency", value=l * 1000, inline=False)
+        embed.add_field(
+            name="Bot Latency",
+            value=round(time.perf_counter() - p, 3) * 1000,
+            inline=False,
+        )
+        await ctx.edit_original_response(embed=embed)
 
     @meta.command(name="jishaku", description="Run a jishaku command in python!")
     async def jskpy(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
-            return await ctx.response.send_message("You are not allowed to use this command!")
+            return await ctx.response.send_message(
+                "You are not allowed to use this command!"
+            )
         m = JSKPyModal(ctx)
+
 
 async def setup(bot):
     await bot.add_cog(Meta(bot))
