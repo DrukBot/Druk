@@ -16,11 +16,13 @@ class CodeRunModal(discord.ui.Modal):
 
     def __init__(self, bot: commands.Bot):
         super().__init__(title="Execute Python Code!")
+        self.bot = bot
 
-    async def on_submit(self, ctx: discord.Interaction) -> None:
+    async def on_submit(self, ctx: discord.Interaction):
         data = self.code.value
         bot = self.bot
         try:
+            print("checked")
             args = {
                 **globals(),
                 "author": ctx.user,
@@ -30,7 +32,9 @@ class CodeRunModal(discord.ui.Modal):
                 "bot": self.bot,
                 "imp": __import__,
             }
+            print("checked")
             data = data.replace("”", '"').replace("“", '"')
+            print("checked")
             while data.startswith((' ','\t','\n')):
                 data = data[1:]
             split = data.splitlines()
@@ -41,7 +45,7 @@ class CodeRunModal(discord.ui.Modal):
             exec(f"async def func():\n{data}", args)
             async for resp in eval("func()", args):
                 resp = str(resp).replace(bot.token, "[TOKEN]")
-                await ctx.channel.send(resp)
+                await ctx.response.send_message(resp)
         except:
             error = traceback.format_exc()
             await ctx.channel.send(
