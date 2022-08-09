@@ -71,9 +71,10 @@ class Meta(commands.Cog):
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
-            return await ctx.response.send_message("You are not allowed to use this command!")
+            return await ctx.response.send_message(
+                "You are not allowed to use this command!"
+            )
         await ctx.response.send_modal(CodeRunModal(self.bot))
-
 
     @meta.command(name="kill", description="Stops the bot")
     async def kill(self, ctx: discord.Interaction):

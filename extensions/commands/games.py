@@ -7,23 +7,21 @@ from utils.utils import Embed
 
 import akinator
 
+
 class Games(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.aki = akinator.Akinator()
-    
+
     games = app_commands.Group(name="games", description="All game commands")
 
-    @games.command(
-        name="akinator-start", description="Starts your akinator game"
-    )
+    @games.command(name="akinator-start", description="Starts your akinator game")
     async def akinatorstart(self, ctx: discord.Interaction):
         question = self.aki.start_game()
-        embed=Embed(
-            title="Question 1",
-            description=question
+        embed = Embed(title="Question 1", description=question)
+        await ctx.response.send_message(
+            embed=embed, view=AkinatorView(ctx, self.aki, question, q_no=1)
         )
-        await ctx.response.send_message(embed=embed, view=AkinatorView(ctx, self.aki, question, q_no=1))
 
 
 async def setup(bot):

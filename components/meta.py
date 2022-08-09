@@ -32,7 +32,7 @@ class CodeRunModal(discord.ui.Modal):
                 "imp": __import__,
             }
             data = data.replace("”", '"').replace("“", '"')
-            while data.startswith((' ','\t','\n')):
+            while data.startswith((" ", "\t", "\n")):
                 data = data[1:]
             split = data.splitlines()
             if len(split) == 1:
@@ -51,5 +51,3 @@ class CodeRunModal(discord.ui.Modal):
                     description=f"```py\n{error}```",
                 )
             )
-
-

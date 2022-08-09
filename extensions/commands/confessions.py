@@ -231,42 +231,56 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def settings(self, ctx: discord.Interaction):
         db = self.db
-        data = await db.execute("SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,))
+        data = await db.execute(
+            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
+        )
 
         if not data:
-            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Not Setup!", "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions."), ephemeral=True)
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Not Setup!",
+                    "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
+                ),
+                ephemeral=True,
+            )
 
         channel = ctx.guild.get_channel(data[1])
         if channel is None:
-            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Channel Not Found!", "Unable to find confessions channel in this server."), ephemeral=True)
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Confessions Channel Not Found!",
+                    "Unable to find confessions channel in this server.",
+                ),
+                ephemeral=True,
+            )
 
         toggle = data[2]
         img_allow = data[3]
         detect_nsfw = data[4]
 
         embed = Embed(
-            title="Confessions Settings", 
+            title="Confessions Settings",
             description="This feature allows server members to send confessions anonymously.\n\n"
-                        f"Only Member's with `Manage Server` permissions can change confessions settings.\n\n"
-                        f"This Feature is currently **{toggle.capitalize()}**.\n"
-                        "*Toggle this feature with `/confessions toggle` command*"
-                    )
+            f"Only Member's with `Manage Server` permissions can change confessions settings.\n\n"
+            f"This Feature is currently **{toggle.capitalize()}**.\n"
+            "*Toggle this feature with `/confessions toggle` command*",
+        )
         embed.add_field(
             name="Channel:",
             value=f"{channel.mention}\n"
-                  "*You can update Confessions Channel with `/confessions setup` command*",
+            "*You can update Confessions Channel with `/confessions setup` command*",
             inline=False,
         )
         embed.add_field(
             name="Image Support:",
             value=f"**{img_allow}**\n"
-                  "*You can update Image Support with `/confessions image_support` command*",
+            "*You can update Image Support with `/confessions image_support` command*",
             inline=False,
         )
         embed.add_field(
             name="NSFW Detection:",
             value=f"**{detect_nsfw}**\n"
-                  "*You can update NSFW Detection with `/confessions detectnsfw` command*",
+            "*You can update NSFW Detection with `/confessions detectnsfw` command*",
             inline=False,
         )
 
