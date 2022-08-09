@@ -50,12 +50,12 @@ class Druk(commands.Bot):
             scopes=["bot", "applications.commands"],
         )
         self.extensions_list = EXTENSIONS
-        self.persistent_views = False
+        self.add_persistent_views = False
 
     async def setup_hook(self) -> None:
-        if not self.persistent_views:
+        if not self.add_persistent_views:
             self.add_view(ReportAction())
-            self.persistent_views = True
+            self.add_persistent_views = True
             utils.log("Persistent views added")
 
         utils.log("Loading All Extensions...")
