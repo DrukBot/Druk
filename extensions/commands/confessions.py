@@ -5,7 +5,7 @@ import discord
 import aiohttp
 
 from io import BytesIO
-#from nude import Nude
+from nude import Nude
 from typing import Optional
 from discord.ext import commands
 from discord import app_commands
@@ -38,10 +38,10 @@ class Confessions(commands.Cog):
                 imageBytes = await resp.read()
 
         imageBytes = BytesIO(imageBytes)
-        #nude = Nude(imageBytes)
-        #nude.parse()
+        nude = Nude(imageBytes)
+        nude.parse()
 
-        if True.result is True:
+        if nude.result is True:
             return True
         else:
             return False
@@ -259,13 +259,13 @@ class Confessions(commands.Cog):
         )
         embed.add_field(
             name="Image Support:",
-            value=f"{img_allow}\n"
+            value=f"**{img_allow}**\n"
                   "*You can update Image Support with `/confessions image_support` command*",
             inline=False,
         )
         embed.add_field(
             name="NSFW Detection:",
-            value=f"{detect_nsfw}\n"
+            value=f"**{detect_nsfw}**\n"
                   "*You can update NSFW Detection with `/confessions detectnsfw` command*",
             inline=False,
         )
