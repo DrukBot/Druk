@@ -2,6 +2,7 @@ import os
 import dotenv
 import aiohttp
 import discord
+from wikipediaapi import Wikipedia, ExtractFormat
 
 
 from discord.ext import commands
@@ -94,6 +95,34 @@ class Miscellaneous(commands.Cog):
         embed = Embed(
             title=f"{type.capitalize()} Question", description=response["text"]
         )
+        await ctx.response.send_message(embed=embed)
+
+
+    @misc.command(name="wiki", description="Search wikipedia!")
+    @app_commands.describe(search="The item you want to search for")
+    async def wiki(self, ctx: discord.Interaction, search: str):
+        wiki_wiki = Wikipedia('en',
+        extract_format=ExtractFormat.WIKI
+        )
+
+        page = wiki_wiki.page(search)
+
+        if not page.exists():
+            await ctx.response.send_message(embed=Embed.ERROR(
+                "Whoops!", f"There is not a page for {search} on Wikipedia!"
+            ))
+            return
+        
+        embed = Embed(
+            title=page.title,
+            description=page.text[0:4096]
+        )
+        
+        embed.add_field(
+            name="URL for further reading",
+            value=page.fullurl
+        )
+
         await ctx.response.send_message(embed=embed)
 
 
