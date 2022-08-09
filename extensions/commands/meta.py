@@ -60,7 +60,8 @@ class Meta(commands.Cog):
         start = time()
         await ctx.response.send_message(content="Pinging...")
         end = time()
-        embed = Embed(f"Latency: `{self.bot.latency*1000:,.0f} ms`\nResponse Time: `{(end-start)*1000:,.0f} ms`")
+        embed = Embed(description=f"Latency: `{self.bot.latency*1000:,.0f}`\nResponse Time: `{(end-start)*1000:,.0f} ms`")
+
         await ctx.edit_original_message(content="Pong!", embed=embed)
 
 
