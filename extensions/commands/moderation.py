@@ -184,7 +184,7 @@ class Moderation(commands.Cog):
         role_to_add: discord.Role,
         role_to_remove: discord.Role,
     ):
-        if role_to_add or role_to_remove >= ctx.user.top_role:
+        if role_to_add >= ctx.user.top_role or role_to_remove >= ctx.user.top_role:
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Error!",
