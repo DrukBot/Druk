@@ -79,21 +79,21 @@ class Miscellaneous(commands.Cog):
     async def t_or_d(
         self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]
     ):
-        data = {"category": category.value, "type": type.value}
-
+        
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.truthordarebot.xyz/v1/{category.value}?rating={type.value}",
+                url=f"https://api.truthordarebot.xyz/v1/{type.value}?rating={category.value}"
             ) as resp:
-                if resp.status > 200:
-                    return await ctx.response.send_message(
-                        embed=Embed.ERROR("API Error", "The API returned an error.")
+
+                if resp.status != 200:
+                    await ctx.response.send_message(
+                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}")
                     )
 
-        response = await resp.json()
+                response = await resp.json()
 
         embed = Embed(
-            title=f"{type.capitalize()} Question", description=response["question"]
+            title=f"{type.value.capitalize()} Question", description=response["question"]
         )
         await ctx.response.send_message(embed=embed)
 
