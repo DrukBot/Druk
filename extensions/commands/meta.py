@@ -1,4 +1,5 @@
 import discord
+from os import system
 
 from discord.ext import commands
 from discord import app_commands
@@ -79,9 +80,19 @@ class Meta(commands.Cog):
     @meta.command(name="kill", description="Stops the bot")
     async def kill(self, ctx: discord.Interaction):
         if ctx.user.id not in self.bot.owner_ids:
-            raise
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            return
         await ctx.response.send_message("Stopping Druk!")
         exit()
+    
+    
+    @meta.command(name="restart", description="Restarts the bot")
+    async def restart(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            return
+        await ctx.response.send_message("Restarting bot!")
+        system("pm2 restart Druk")
 
 
 async def setup(bot):
