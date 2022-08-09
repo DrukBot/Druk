@@ -239,7 +239,7 @@ class Report(commands.Cog):
                 embed=Embed.ERROR(
                     "Report System is not Setup!",
                     "Please setup the report system first.",
-                )
+                ), ephemeral=True
             )
 
         channel = await self.get_channel(ctx, int(data[1]))

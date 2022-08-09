@@ -48,7 +48,7 @@ class Miscellaneous(commands.Cog):
                 return await ctx.response.send_message(
                     embed=Embed.ERROR(
                         "No Data Found!", "The city you entered is not found."
-                    )
+                    ), ephemeral=True
                 )
 
         embed = Embed(
@@ -87,7 +87,7 @@ class Miscellaneous(commands.Cog):
 
                 if resp.status != 200:
                     await ctx.response.send_message(
-                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}")
+                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}"), ephemeral=True
                     )
 
                 response = await resp.json()
@@ -110,7 +110,7 @@ class Miscellaneous(commands.Cog):
         if not page.exists():
             await ctx.response.send_message(embed=Embed.ERROR(
                 "Whoops!", f"There is not a page for {search} on Wikipedia!"
-            ))
+            ), ephemeral=True)
             return
         
         embed = Embed(

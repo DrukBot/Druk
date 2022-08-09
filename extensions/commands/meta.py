@@ -73,14 +73,14 @@ class Meta(commands.Cog):
     async def run(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
             return await ctx.response.send_message(
-                "You are not allowed to use this command!"
+                "You are not allowed to use this command!", ephemeral=True
             )
         await ctx.response.send_modal(CodeRunModal(self.bot))
 
     @meta.command(name="kill", description="Stops the bot")
     async def kill(self, ctx: discord.Interaction):
         if ctx.user.id not in self.bot.owner_ids:
-            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True)
             return
         await ctx.response.send_message("Stopping Druk!")
         await self.bot.close()
@@ -90,7 +90,7 @@ class Meta(commands.Cog):
     @meta.command(name="restart", description="Restarts the bot")
     async def restart(self, ctx: discord.Interaction):
         if ctx.user.id not in self.bot.owner_ids:
-            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True)
             return
         await ctx.response.send_message("Restarting bot!")
         await self.bot.close()
@@ -100,7 +100,7 @@ class Meta(commands.Cog):
     @meta.command(name="update", description="Updates the bot to the newest github commit")
     async def update(self, ctx: discord.Interaction):
         if ctx.user.id not in self.bot.owner_ids:
-            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True)
             return
         if getcwd() == "/root/Druk":
             system("git pull")
