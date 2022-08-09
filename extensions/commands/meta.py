@@ -6,7 +6,7 @@ from discord import app_commands
 from utils.utils import Embed
 from components.meta import CodeRunModal
 
-import time
+from time import time
 from datetime import datetime
 from humanfriendly import format_timespan
 
