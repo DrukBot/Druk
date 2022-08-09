@@ -58,7 +58,7 @@ class Meta(commands.Cog):
     async def ping(self, ctx: discord.Interaction):
         l = self.bot.latency
         l = round(l, 3)
-        p = time.perf_counter()
+        p = await time.perf_counter()
         embed = Embed(title="Pong!", timestamp=discord.utils.utcnow())
         embed.add_field(name="Websocket Latency", value=l * 1000, inline=False)
         embed.add_field(
