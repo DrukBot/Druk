@@ -83,7 +83,8 @@ class Meta(commands.Cog):
             await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
             return
         await ctx.response.send_message("Stopping Druk!")
-        exit()
+        await self.bot.close()
+        system("pm2 stop Druk")
     
     
     @meta.command(name="restart", description="Restarts the bot")
