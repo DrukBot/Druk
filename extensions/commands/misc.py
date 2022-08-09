@@ -48,7 +48,8 @@ class Miscellaneous(commands.Cog):
                 return await ctx.response.send_message(
                     embed=Embed.ERROR(
                         "No Data Found!", "The city you entered is not found."
-                    ), ephemeral=True
+                    ),
+                    ephemeral=True,
                 )
 
         embed = Embed(
@@ -79,7 +80,7 @@ class Miscellaneous(commands.Cog):
     async def t_or_d(
         self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]
     ):
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url=f"https://api.truthordarebot.xyz/v1/{type.value}?rating={category.value}"
@@ -87,41 +88,40 @@ class Miscellaneous(commands.Cog):
 
                 if resp.status != 200:
                     await ctx.response.send_message(
-                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}"), ephemeral=True
+                        embed=Embed.ERROR(
+                            "Error",
+                            f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}",
+                        ),
+                        ephemeral=True,
                     )
 
                 response = await resp.json()
 
         embed = Embed(
-            title=f"{type.value.capitalize()} Question", description=response["question"]
+            title=f"{type.value.capitalize()} Question",
+            description=response["question"],
         )
         await ctx.response.send_message(embed=embed)
-
 
     @misc.command(name="wiki", description="Search wikipedia!")
     @app_commands.describe(search="The item you want to search for")
     async def wiki(self, ctx: discord.Interaction, search: str):
-        wiki_wiki = Wikipedia('en',
-        extract_format=ExtractFormat.WIKI
-        )
+        wiki_wiki = Wikipedia("en", extract_format=ExtractFormat.WIKI)
 
         page = wiki_wiki.page(search)
 
         if not page.exists():
-            await ctx.response.send_message(embed=Embed.ERROR(
-                "Whoops!", f"There is not a page for {search} on Wikipedia!"
-            ), ephemeral=True)
+            await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Whoops!", f"There is not a page for {search} on Wikipedia!"
+                ),
+                ephemeral=True,
+            )
             return
-        
-        embed = Embed(
-            title=page.title,
-            description=page.text[0:4096]
-        )
-        
-        embed.add_field(
-            name="URL for further reading",
-            value=page.fullurl
-        )
+
+        embed = Embed(title=page.title, description=page.text[0:4096])
+
+        embed.add_field(name="URL for further reading", value=page.fullurl)
 
         await ctx.response.send_message(embed=embed)
 

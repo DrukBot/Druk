@@ -123,14 +123,16 @@ class Moderation(commands.Cog):
                 embed=Embed.ERROR(
                     "Error!",
                     "You cannot assign roles higher (or equal to) your own top role!",
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         if not role.is_assignable():
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Error!", "I dont have permission to assign this role!"
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         await member.add_roles(role)
@@ -152,14 +154,16 @@ class Moderation(commands.Cog):
                 embed=Embed.ERROR(
                     "Error!",
                     "You cannot assign roles higher (or equal to) your own top role!",
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         if not role.is_assignable():
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Error!", "I dont have permission to assign this role!"
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         await member.remove_roles(role)
@@ -189,19 +193,22 @@ class Moderation(commands.Cog):
                 embed=Embed.ERROR(
                     "Error!",
                     "You cannot assign roles higher (or equal to) your own top role!",
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         if not role_to_add.is_assignable() or not role_to_remove.is_assignable():
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Error!", "I dont have permission to assign this role!"
-                ), ephemeral=True
+                ),
+                ephemeral=True,
             )
 
         if role_to_add == role_to_remove:
             return await ctx.response.send_message(
-                embed=Embed.ERROR("Error!", "You cannot exchange a role for itself!"), ephemeral=True
+                embed=Embed.ERROR("Error!", "You cannot exchange a role for itself!"),
+                ephemeral=True,
             )
 
         await member.add_roles(role_to_add)
