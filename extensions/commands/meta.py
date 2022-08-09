@@ -62,7 +62,7 @@ class Meta(commands.Cog):
         end = time()
         embed = Embed(f"Latency: `{self.bot.latency*1000:,.0f} ms`\nResponse Time: `{(end-start)*1000:,.0f} ms`")
         await message.edit(content="Pong!", embed=embed)
-        
+
 
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
