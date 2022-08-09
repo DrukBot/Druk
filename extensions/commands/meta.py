@@ -56,7 +56,7 @@ class Meta(commands.Cog):
 
     @meta.command(name="ping", description="Tells you the latency of the bot")
     async def ping(self, ctx: discord.Interaction):
-        embed = Embed(f"Latency: `{self.bot.latency*1000:,.0f} ms`")
+        embed = Embed(description=f"Latency: `{self.bot.latency*1000:,.0f} ms`")
         await ctx.response.send_message(content="Pong!", embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
