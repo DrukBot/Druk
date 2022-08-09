@@ -5,7 +5,7 @@ import discord
 import aiohttp
 
 from io import BytesIO
-from nude import Nude
+#from nude import Nude
 from typing import Optional
 from discord.ext import commands
 from discord import app_commands
@@ -38,10 +38,10 @@ class Confessions(commands.Cog):
                 imageBytes = await resp.read()
 
         imageBytes = BytesIO(imageBytes)
-        nude = Nude(imageBytes)
-        nude.parse()
+        #nude = Nude(imageBytes)
+        #nude.parse()
 
-        if nude.result is True:
+        if True.result is True:
             return True
         else:
             return False
@@ -225,6 +225,52 @@ class Confessions(commands.Cog):
             ),
             ephemeral=True,
         )
+
+    @confessions.command(name="settings", description="View Confessions Settings")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def settings(self, ctx: discord.Interaction):
+        db = self.db
+        data = await db.execute("SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,))
+
+        if not data:
+            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Not Setup!", "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions."), ephemeral=True)
+
+        channel = ctx.guild.get_channel(data[1])
+        if channel is None:
+            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Channel Not Found!", "Unable to find confessions channel in this server."), ephemeral=True)
+
+        toggle = data[2]
+        img_allow = data[3]
+        detect_nsfw = data[4]
+
+        embed = Embed(
+            title="Confessions Settings", 
+            description="This feature allows server members to send confessions anonymously.\n\n"
+                        f"Only Member's with `Manage Server` permissions can change confessions settings.\n\n"
+                        f"This Feature is currently **{toggle.capitalize()}**.\n"
+                        "*Toggle this feature with `/confessions toggle` command*"
+                    )
+        embed.add_field(
+            name="Channel:",
+            value=f"{channel.mention}\n"
+                  "*You can update Confessions Channel with `/confessions setup` command*",
+            inline=False,
+        )
+        embed.add_field(
+            name="Image Support:",
+            value=f"{img_allow}\n"
+                  "*You can update Image Support with `/confessions image_support` command*",
+            inline=False,
+        )
+        embed.add_field(
+            name="NSFW Detection:",
+            value=f"{detect_nsfw}\n"
+                  "*You can update NSFW Detection with `/confessions detectnsfw` command*",
+            inline=False,
+        )
+
+        await ctx.response.send_message(embed=embed)
 
     @app_commands.command(name="confess", description="Post anonymous confessions")
     @app_commands.describe(image="The image to be posted.")
