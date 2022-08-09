@@ -93,7 +93,7 @@ class SubmitReport(discord.ui.Modal, title="Submit Report"):
 
 class ReportAction(discord.ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None)
 
     @discord.ui.button(
         label="Mark As Solved", style=discord.ButtonStyle.green, custom_id="solve"
