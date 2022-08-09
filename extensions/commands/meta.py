@@ -104,8 +104,8 @@ class Meta(commands.Cog):
         if getcwd() == "/root/Druk":
             await system("git pull")
         else:
-            await system("cd /root/Druk")
-            await system("git pull")
+            system("cd /root/Druk")
+            system("git pull")
             await ctx.response.send_message("Updating bot!")
             await self.bot.close()
             system("pm2 restart Druk")
