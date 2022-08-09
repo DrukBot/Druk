@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 from discord.ext import commands
+from components.report import ReportAction
 
 
 dotenv.load_dotenv()
@@ -49,8 +50,14 @@ class Druk(commands.Bot):
             scopes=["bot", "applications.commands"],
         )
         self.extensions_list = EXTENSIONS
+        self.persistent_views = False
 
     async def setup_hook(self) -> None:
+        if not self.persistent_views:
+            self.add_view(ReportAction())
+            self.persistent_views = True
+            utils.log("Persistent views added")
+
         utils.log("Loading All Extensions...")
         for ext in EXTENSIONS:
             try:
