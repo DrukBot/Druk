@@ -28,7 +28,7 @@ class Moderation(commands.Cog):
         ]
     )
     @app_commands.guild_only()
-    @app_commands.checks.has_permissions(manage_channels=True, administrator=True)
+    @app_commands.checks.has_permissions(manage_channels=True)
     async def slowmode(self, ctx: discord.Interaction, time: int, measure: Choice[str]):
         if time == 0:
             await ctx.channel.edit(slowmode_delay=time)
