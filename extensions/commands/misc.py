@@ -71,8 +71,8 @@ class Miscellaneous(commands.Cog):
     )
     @app_commands.choices(
         category=[
-            Choice(name="Friendly", value="friendly"),
-            Choice(name="Dirty", value="dirty"),
+            Choice(name="Friendly", value="pg13"),
+            Choice(name="Dirty", value="r"),
         ],
         type=[Choice(name="Truth", value="truth"), Choice(name="Dare", value="dare")],
     )
@@ -83,7 +83,7 @@ class Miscellaneous(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                "https://randommer.io/truth-dare-generator", data=data
+                f"https://api.truthordarebot.xyz/v1/{category.value}?rating={type.value}",
             ) as resp:
                 if resp.status > 200:
                     return await ctx.response.send_message(
@@ -93,7 +93,7 @@ class Miscellaneous(commands.Cog):
         response = await resp.json()
 
         embed = Embed(
-            title=f"{type.capitalize()} Question", description=response["text"]
+            title=f"{type.capitalize()} Question", description=response["question"]
         )
         await ctx.response.send_message(embed=embed)
 
