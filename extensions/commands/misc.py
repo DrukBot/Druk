@@ -82,7 +82,7 @@ class Miscellaneous(commands.Cog):
         data = {"category": category.value, "type": type.value}
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(
+            async with session.get(
                 f"https://api.truthordarebot.xyz/v1/{category.value}?rating={type.value}",
             ) as resp:
                 if resp.status > 200:
