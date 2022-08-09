@@ -1,5 +1,5 @@
 import discord
-from os import system
+from os import system, getcwd
 
 from discord.ext import commands
 from discord import app_commands
@@ -95,6 +95,21 @@ class Meta(commands.Cog):
         await self.bot.close()
         system("pm2 restart Druk")
 
+
+    @meta.command(name="update", description="Updates the bot to the newest github commit")
+    async def update(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
+            return
+        if getcwd() == "/root/Druk":
+            await system("git pull")
+        else:
+            await system("cd /root/Druk")
+            await system("git pull")
+            await ctx.response.send_message("Updating bot!")
+            await self.bot.close()
+            system("pm2 restart Druk")
+    
 
 async def setup(bot):
     await bot.add_cog(Meta(bot))
