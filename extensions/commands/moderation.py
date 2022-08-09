@@ -192,7 +192,7 @@ class Moderation(commands.Cog):
                 )
             )
 
-        if not role_to_add.is_assignable() or role_to_remove.is_assignable():
+        if not role_to_add.is_assignable() or not role_to_remove.is_assignable():
             return await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Error!", "I dont have permission to assign this role!"
