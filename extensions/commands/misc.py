@@ -44,7 +44,7 @@ class Miscellaneous(commands.Cog):
                 speed_wind = wind["speed"]
                 weather_description = str(weather[0]["description"]).title()
             except KeyError:
-                return await ctx.respond(
+                return await ctx.response.send_message(
                     embed=Embed.ERROR(
                         "No Data Found!", "The city you entered is not found."
                     )
