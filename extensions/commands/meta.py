@@ -67,7 +67,7 @@ class Meta(commands.Cog):
             value=round(time.perf_counter() - p, 3) * 1000,
             inline=False,
         )
-        await ctx.edit_original_response(embed=embed)
+        await ctx.response.edit_original_response(embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
