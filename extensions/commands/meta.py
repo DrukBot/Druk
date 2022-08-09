@@ -58,7 +58,8 @@ class Meta(commands.Cog):
     async def ping(self, ctx: discord.Interaction):
         l = self.bot.latency
         l = round(l, 3)
-        p = await time.perf_counter()
+        p = time.perf_counter()
+        await ctx.response.send_message("Pong!")
         embed = Embed(title="Pong!", timestamp=discord.utils.utcnow())
         embed.add_field(name="Websocket Latency", value=l * 1000, inline=False)
         embed.add_field(
@@ -66,7 +67,7 @@ class Meta(commands.Cog):
             value=round(time.perf_counter() - p, 3) * 1000,
             inline=False,
         )
-        await ctx.response.send_message(embed=embed)
+        await ctx.response.edit_message(embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
