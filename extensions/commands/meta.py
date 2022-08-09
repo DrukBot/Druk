@@ -58,7 +58,7 @@ class Meta(commands.Cog):
     async def ping(self, ctx: discord.Interaction):
 
         start = time()
-        await ctx.response.send(content="Pinging...")
+        await ctx.response.send_message(content="Pinging...")
         end = time()
         embed = Embed(f"Latency: `{self.bot.latency*1000:,.0f} ms`\nResponse Time: `{(end-start)*1000:,.0f} ms`")
         await ctx.edit_original_message(content="Pong!", embed=embed)
