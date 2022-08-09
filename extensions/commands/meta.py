@@ -59,7 +59,6 @@ class Meta(commands.Cog):
         embed = Embed(f"Latency: `{self.bot.latency*1000:,.0f} ms`")
         await ctx.response.send_message(content="Pong!", embed=embed)
 
-
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
