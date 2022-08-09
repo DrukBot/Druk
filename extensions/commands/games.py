@@ -17,6 +17,10 @@ class Games(commands.Cog):
 
     @games.command(name="akinator-start", description="Starts your akinator game")
     async def akinatorstart(self, ctx: discord.Interaction):
+        """
+        Removed deferring from the components/games.py view
+        The game should loop until it is done but you never know
+        """
         question = self.aki.start_game()
         embed = Embed(title="Question 1", description=question)
         await ctx.response.send_message(
