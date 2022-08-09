@@ -65,6 +65,41 @@ class Miscellaneous(commands.Cog):
 
         await ctx.response.send_message(embed=embed)
 
+    
+    @misc.command(name="would-you-rather", description="Play would you rather")
+    @app_commands.describe(
+        rating="The age rating you would like"
+    )
+    @app_commands.choices(
+        rating=[
+            Choice(name="PG", value="pg"),
+            Choice(name="PG13", value="pg13"),
+            Choice(name="Adult", value="r")
+        ]
+    )
+    async def wyr(
+        self, ctx: discord.Interaction, rating: Choice[str]
+    ):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"https://api.truthordarebot.xyz/api/wyr?rating={rating.value}"
+            ) as resp:
+
+                if resp.status != 200:
+                    await ctx.response.send_message(
+                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {rating.value}")
+                    )
+
+                response = await resp.json()
+            
+        embed = Embed(
+            title=f"Would You Rather **{rating.name}**", description=response["question"]
+        )
+
+        await ctx.response.send_message(embed=embed)
+
+
+
     @misc.command(name="truth-or-dare", description="Get a truth or dare.")
     @app_commands.describe(
         category="The category of the truth or dare.",
@@ -80,7 +115,7 @@ class Miscellaneous(commands.Cog):
     async def t_or_d(
         self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]
     ):
-
+        
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url=f"https://api.truthordarebot.xyz/v1/{type.value}?rating={category.value}"
@@ -94,7 +129,7 @@ class Miscellaneous(commands.Cog):
                         ),
                         ephemeral=True,
                     )
-
+                    
                 response = await resp.json()
 
         embed = Embed(
@@ -113,14 +148,14 @@ class Miscellaneous(commands.Cog):
         if not page.exists():
             await ctx.response.send_message(
                 embed=Embed.ERROR(
-                    "Whoops!", f"There is not a page for {search} on Wikipedia!"
+                "Whoops!", f"There is not a page for {search} on Wikipedia!"
                 ),
                 ephemeral=True,
             )
             return
-
+        
         embed = Embed(title=page.title, description=page.text[0:4096])
-
+        
         embed.add_field(name="URL for further reading", value=page.fullurl)
 
         await ctx.response.send_message(embed=embed)
