@@ -75,5 +75,13 @@ class Meta(commands.Cog):
         await ctx.response.send_modal(CodeRunModal(self.bot))
 
 
+    @meta.command(name="kill", description="Stops the bot")
+    async def kill(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            raise
+        await ctx.response.send_message("Stopping Druk!")
+        exit()
+
+
 async def setup(bot):
     await bot.add_cog(Meta(bot))
