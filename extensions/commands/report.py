@@ -223,15 +223,24 @@ class Report(commands.Cog):
             ephemeral=True,
         )
 
-    @reportconfig.command(name="settings", description="View the settings for the report system.")
+    @reportconfig.command(
+        name="settings", description="View the settings for the report system."
+    )
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setttings(self, ctx: discord.Interaction):
         db = self.db
-        data = await db.execute("SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,))
+        data = await db.execute(
+            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
+        )
 
         if not data:
-            return await ctx.response.send_message(embed=Embed.ERROR("Report System is not Setup!", "Please setup the report system first."))
+            return await ctx.response.send_message(
+                embed=Embed.ERROR(
+                    "Report System is not Setup!",
+                    "Please setup the report system first.",
+                )
+            )
 
         channel = await self.get_channel(ctx, int(data[1]))
         role = await self.get_role(ctx, data[2])
@@ -240,35 +249,33 @@ class Report(commands.Cog):
         thread_support = data[4]
 
         embed = Embed(
-            title="Report System Settings", 
+            title="Report System Settings",
             description="Druk's Report System Help server member's to contanct their problems with mods through Report System.\n\n"
-                        "Only Members with `Manage Server` permission can manage the report system.\n\n"
-                        f"This feature is currently **{toggle}**\n"
-                        "*Toggle this feature with `/reportconfig toggle` command.*"
+            "Only Members with `Manage Server` permission can manage the report system.\n\n"
+            f"This feature is currently **{toggle}**\n"
+            "*Toggle this feature with `/reportconfig toggle` command.*",
         )
 
         embed.add_field(
             name="Channel",
             value=f"{channel.mention}\n"
-                  "*You can update report system channel with `/reportconfig setup` command.*",
+            "*You can update report system channel with `/reportconfig setup` command.*",
             inline=False,
         )
         embed.add_field(
             name="Ping Role",
             value=f"{mention_role}\n"
-                   "*You can update ping role with `/reportconfig role` command.*",
+            "*You can update ping role with `/reportconfig role` command.*",
             inline=False,
         )
         embed.add_field(
             name="Thread Support",
             value=f"**{thread_support}**\n"
-                  "*You can update thread support with `/reportconfig thread` command.*",
+            "*You can update thread support with `/reportconfig thread` command.*",
             inline=False,
         )
 
         await ctx.response.send_message(embed=embed)
-
-
 
     @app_commands.command(name="report", description="Report a user in your server.")
     @app_commands.describe(

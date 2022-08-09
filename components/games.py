@@ -6,8 +6,15 @@ import traceback
 import akinator
 
 
-class AkinatorView(discord.ui.View): 
-    def __init__(self, ctx: commands.Context, akin: akinator.Akinator, prev_q: str = None, next_q: str = None, q_no: int = 1) -> None:
+class AkinatorView(discord.ui.View):
+    def __init__(
+        self,
+        ctx: commands.Context,
+        akin: akinator.Akinator,
+        prev_q: str = None,
+        next_q: str = None,
+        q_no: int = 1,
+    ) -> None:
         super().__init__()
         self.ctx = ctx
         self.akin = akin
@@ -19,14 +26,21 @@ class AkinatorView(discord.ui.View):
     async def yes_callback(self, button, interaction):
         await interaction.response.defer()
         await interaction.channel.send(content="Pressed Yes")
-        self.next_question =  self.akinator.answer("yes")
+        self.next_question = self.akinator.answer("yes")
 
         embed = Embed(
-            title=f"Question {self.question_number}",
-            description=self.next_question
+            title=f"Question {self.question_number}", description=self.next_question
         )
 
-        await self.ctx.response.edit_message(embed=embed, view=AkinatorView(self.ctx, self.akin, next_q=self.next_question, q_no=self.question_number+1))
+        await self.ctx.response.edit_message(
+            embed=embed,
+            view=AkinatorView(
+                self.ctx,
+                self.akin,
+                next_q=self.next_question,
+                q_no=self.question_number + 1,
+            ),
+        )
 
     @discord.ui.button(label="Probably", style=discord.ButtonStyle.green)
     async def prob_callback(self, button, interaction):
@@ -39,7 +53,7 @@ class AkinatorView(discord.ui.View):
 
     @discord.ui.button(label="No", style=discord.ButtonStyle.red)
     async def no_callback(self, button, interaction):
-        self.next_question = self.akinator.answer("no")   
+        self.next_question = self.akinator.answer("no")
 
     @discord.ui.button(label="Probably Not", style=discord.ButtonStyle.red)
     async def prob_not_callback(self, button, interaction):
