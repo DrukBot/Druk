@@ -226,6 +226,23 @@ class Confessions(commands.Cog):
             ephemeral=True,
         )
 
+    @confessions.command(name="settings", description="shit.")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def settings(self, ctx: discord.Interaction):
+        db = self.db
+        data = db.execute("SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,))
+
+        if not data:
+            return await ctx.response.send_message(embed=Embed.ERROR("Confessions Not Setup!", "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions."), ephemeral=True)
+
+        channel = ctx.guild.get_channel(int(data[1]))
+        detectNSFW = str(data[4])
+        img_allow = str(data[3])
+        toggle = str(data[2])
+
+        embed = Embed()
+
     @app_commands.command(name="confess", description="Post anonymous confessions")
     @app_commands.describe(image="The image to be posted.")
     async def confess(
@@ -286,6 +303,7 @@ class Confessions(commands.Cog):
                 )
             )
         await ctx.response.send_modal(SendConfession(db, channel, image_url))
+
 
 
 confessions_table = Table(
