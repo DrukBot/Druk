@@ -102,7 +102,10 @@ class Meta(commands.Cog):
             await ctx.response.send_message(embed=Embed.ERROR("Permissions!", "You cannot do that!"))
             return
         if getcwd() == "/root/Druk":
-            await system("git pull")
+            system("git pull")
+            await ctx.response.send_message("Updating bot!")
+            await self.bot.close()
+            system("pm2 restart Druk")
         else:
             system("cd /root/Druk")
             system("git pull")
