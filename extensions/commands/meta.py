@@ -1,11 +1,12 @@
 import discord
+from os import system, getcwd
 
 from discord.ext import commands
 from discord import app_commands
 from utils.utils import Embed
 from components.meta import CodeRunModal
 
-import time
+from time import time
 from datetime import datetime
 from humanfriendly import format_timespan
 
@@ -55,24 +56,59 @@ class Meta(commands.Cog):
 
     @meta.command(name="ping", description="Tells you the latency of the bot")
     async def ping(self, ctx: discord.Interaction):
-        l = self.bot.latency
-        l = round(l, 3)
-        p = time.perf_counter()
-        await ctx.response.send_message("Pong!")
-        embed = Embed(title="Ping", timestamp=discord.utils.utcnow())
-        embed.add_field(name="Websocket Latency", value=l * 1000, inline=False)
-        embed.add_field(
-            name="Bot Latency",
-            value=round(time.perf_counter() - p, 3) * 1000,
-            inline=False,
-        )
-        await ctx.edit_original_response(embed=embed)
+        embed = Embed(description=f"Latency: `{self.bot.latency*1000:,.0f} ms`")
+        await ctx.response.send_message(content="Pong!", embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
         if not (ctx.user.id in self.bot.owner_ids):
-            return await ctx.response.send_message("You are not allowed to use this command!")
+            return await ctx.response.send_message(
+                "You are not allowed to use this command!", ephemeral=True
+            )
         await ctx.response.send_modal(CodeRunModal(self.bot))
+
+    @meta.command(name="kill", description="Stops the bot")
+    async def kill(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            await ctx.response.send_message(
+                embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True
+            )
+            return
+        await ctx.response.send_message("Stopping Druk!")
+        await self.bot.close()
+        system("pm2 stop Druk")
+
+    @meta.command(name="restart", description="Restarts the bot")
+    async def restart(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            await ctx.response.send_message(
+                embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True
+            )
+            return
+        await ctx.response.send_message("Restarting bot!")
+        await self.bot.close()
+        system("pm2 restart Druk")
+
+    @meta.command(
+        name="update", description="Updates the bot to the newest github commit"
+    )
+    async def update(self, ctx: discord.Interaction):
+        if ctx.user.id not in self.bot.owner_ids:
+            await ctx.response.send_message(
+                embed=Embed.ERROR("Permissions!", "You cannot do that!"), ephemeral=True
+            )
+            return
+        if getcwd() == "/root/Druk":
+            system("git pull")
+            await ctx.response.send_message("Updating bot!")
+            await self.bot.close()
+            system("pm2 restart Druk")
+        else:
+            system("cd /root/Druk")
+            system("git pull")
+            await ctx.response.send_message("Updating bot!")
+            await self.bot.close()
+            system("pm2 restart Druk")
 
 
 async def setup(bot):

@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 from discord.ext import commands
+from components.report import ReportAction
 
 
 dotenv.load_dotenv()
@@ -17,7 +18,6 @@ EXTENSIONS = (
     "extensions.commands.report",
     "extensions.commands.meta",
     "extensions.commands.moderation",
-    "extensions.commands.games",
     "extensions.events.error_handler",
 )
 
@@ -43,14 +43,27 @@ class Druk(commands.Bot):
 
         self.token: str = os.environ["TOKEN"]
         self.starting_time = datetime.now().timestamp()
-        self.invite_link = discord.utils.oauth_url(client_id=os.environ['APP_ID'], permissions=discord.Permissions(permissions=8), scopes=['bot', 'applications.commands'])
+        self.invite_link = discord.utils.oauth_url(
+            client_id=os.environ["APP_ID"],
+            permissions=discord.Permissions(permissions=8),
+            scopes=["bot", "applications.commands"],
+        )
+        self.extensions_list = EXTENSIONS
+        self.add_persistent_views = False
 
     async def setup_hook(self) -> None:
+        if not self.add_persistent_views:
+            self.add_view(ReportAction())
+            self.add_persistent_views = True
+            utils.log("Persistent views added")
+
         utils.log("Loading All Extensions...")
         for ext in EXTENSIONS:
             try:
                 await self.load_extension(ext)
-                utils.log(f"Loaded Extension: {ext}")
+                log_ext = ext.split(".")[-1]
+                log_ext = log_ext.replace("_", " ").title()
+                utils.log(f"Loaded Extension: {log_ext}")
             except Exception as e:
                 print(e)
         utils.log("All Extensions Loaded Successfully.")

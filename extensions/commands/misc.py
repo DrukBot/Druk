@@ -2,6 +2,7 @@ import os
 import dotenv
 import aiohttp
 import discord
+from wikipediaapi import Wikipedia, ExtractFormat
 
 
 from discord.ext import commands
@@ -44,10 +45,11 @@ class Miscellaneous(commands.Cog):
                 speed_wind = wind["speed"]
                 weather_description = str(weather[0]["description"]).title()
             except KeyError:
-                return await ctx.respond(
+                return await ctx.response.send_message(
                     embed=Embed.ERROR(
                         "No Data Found!", "The city you entered is not found."
-                    )
+                    ),
+                    ephemeral=True,
                 )
 
         embed = Embed(
@@ -63,6 +65,41 @@ class Miscellaneous(commands.Cog):
 
         await ctx.response.send_message(embed=embed)
 
+    
+    @misc.command(name="would-you-rather", description="Play would you rather")
+    @app_commands.describe(
+        rating="The age rating you would like"
+    )
+    @app_commands.choices(
+        rating=[
+            Choice(name="PG", value="pg"),
+            Choice(name="PG13", value="pg13"),
+            Choice(name="Adult", value="r")
+        ]
+    )
+    async def wyr(
+        self, ctx: discord.Interaction, rating: Choice[str]
+    ):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"https://api.truthordarebot.xyz/api/wyr?rating={rating.value}"
+            ) as resp:
+
+                if resp.status != 200:
+                    await ctx.response.send_message(
+                        embed=Embed.ERROR("Error", f"The API returned code `{resp.status}` with parameters {rating.value}")
+                    )
+
+                response = await resp.json()
+            
+        embed = Embed(
+            title=f"Would You Rather **{rating.name}**", description=response["question"]
+        )
+
+        await ctx.response.send_message(embed=embed)
+
+
+
     @misc.command(name="truth-or-dare", description="Get a truth or dare.")
     @app_commands.describe(
         category="The category of the truth or dare.",
@@ -70,30 +107,57 @@ class Miscellaneous(commands.Cog):
     )
     @app_commands.choices(
         category=[
-            Choice(name="Friendly", value="friendly"),
-            Choice(name="Dirty", value="dirty"),
+            Choice(name="Friendly", value="pg13"),
+            Choice(name="Dirty", value="r"),
         ],
         type=[Choice(name="Truth", value="truth"), Choice(name="Dare", value="dare")],
     )
     async def t_or_d(
         self, ctx: discord.Interaction, category: Choice[str], type: Choice[str]
     ):
-        data = {"category": category.value, "type": type.value}
-
+        
         async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://randommer.io/truth-dare-generator", data=data
+            async with session.get(
+                url=f"https://api.truthordarebot.xyz/v1/{type.value}?rating={category.value}"
             ) as resp:
-                if resp.status > 200:
-                    return await ctx.response.send_message(
-                        embed=Embed.ERROR("API Error", "The API returned an error.")
-                    )
 
-        response = await resp.json()
+                if resp.status != 200:
+                    await ctx.response.send_message(
+                        embed=Embed.ERROR(
+                            "Error",
+                            f"The API returned code `{resp.status}` with parameters {category.value}, {type.value}",
+                        ),
+                        ephemeral=True,
+                    )
+                    
+                response = await resp.json()
 
         embed = Embed(
-            title=f"{type.capitalize()} Question", description=response["text"]
+            title=f"{type.value.capitalize()} Question",
+            description=response["question"],
         )
+        await ctx.response.send_message(embed=embed)
+
+    @misc.command(name="wiki", description="Search wikipedia!")
+    @app_commands.describe(search="The item you want to search for")
+    async def wiki(self, ctx: discord.Interaction, search: str):
+        wiki_wiki = Wikipedia("en", extract_format=ExtractFormat.WIKI)
+
+        page = wiki_wiki.page(search)
+
+        if not page.exists():
+            await ctx.response.send_message(
+                embed=Embed.ERROR(
+                "Whoops!", f"There is not a page for {search} on Wikipedia!"
+                ),
+                ephemeral=True,
+            )
+            return
+        
+        embed = Embed(title=page.title, description=page.text[0:4096])
+        
+        embed.add_field(name="URL for further reading", value=page.fullurl)
+
         await ctx.response.send_message(embed=embed)
 
 
