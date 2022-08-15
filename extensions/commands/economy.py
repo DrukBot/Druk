@@ -58,6 +58,29 @@ class Economy(commands.Cog):
         await ctx.response.send_message(embed=balEm)
 
 
+    @app_commands.command(name="transfer")
+    async def transfer(
+        self,
+        ctx: discord.Interaction,
+        recipient: discord.User,
+        amount: int
+    ):
+        sender_acc = await self.fetch_or_create_account(ctx.user)
+        recipient_acc = await self.fetch_or_create_account(recipient)
+        if sender_acc['coins'] < amount:
+            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {sender_acc['coins']} coins.\nYou are {amount - sender_acc['coins']} coins short!")
+            await ctx.response.send_message(embed=insufficient_embed)
+            return
+        await self.db.update('accounts', {'coins': sender_acc['coins']-amount}, f'user_id = {ctx.user.id}')
+        await self.db.update('accounts', {'coins': recipient_acc['coins']+amount}, f'user_id = {recipient.id}')
+
+        success_embed = discord.Embed(title="Success!", description=f"You successfully sent {amount} coins to <@{recipient.id}>")
+        success_embed.add_field(name="Your balance", value=f"{sender_acc['coins']-amount}")
+        success_embed.add_field(name="Their balance", value=f"{recipient_acc['coins']+amount}")
+
+        await ctx.response.send_message(embed=success_embed)
+
+
 accounts_table = utils.Table(
     "accounts",
     [
