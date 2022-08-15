@@ -1,5 +1,7 @@
-import asyncio
-import druk
+import dotenv
+dotenv.load_dotenv()
+
+import druk, asyncio
 
 Druk = druk.Druk()
 

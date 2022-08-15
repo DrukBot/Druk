@@ -1,5 +1,5 @@
 aiohttp==3.7.4.post0
-aiosqlite==0.17.0
+asyncpg
 colorama==0.4.4
 git+https://github.com/Rapptz/discord.py
 humanfriendly==10.0

@@ -1,5 +1,4 @@
 import os
-import dotenv
 import discord
 import utils.utils as utils
 from datetime import datetime
@@ -9,8 +8,6 @@ from discord.ext import commands
 from components.report import ReportAction
 
 
-dotenv.load_dotenv()
-
 
 EXTENSIONS = (
     "extensions.commands.confessions",
@@ -18,6 +15,7 @@ EXTENSIONS = (
     "extensions.commands.report",
     "extensions.commands.meta",
     "extensions.commands.moderation",
+    "extensions.commands.economy",
     "extensions.events.error_handler",
 )
 

@@ -35,5 +35,6 @@ class ErrorHandler(commands.Cog):
             utils.log(error, "error")
 
 
+
 async def setup(bot):
     await bot.add_cog(ErrorHandler(bot))

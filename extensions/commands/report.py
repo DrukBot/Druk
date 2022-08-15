@@ -14,7 +14,7 @@ from utils.db import Database, Table, Column
 class Report(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = Database("database/report.db", "report", tables=[report_table])
+        self.db = Database("report", tables=[report_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()

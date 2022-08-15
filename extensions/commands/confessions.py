@@ -21,8 +21,8 @@ dotenv.load_dotenv()
 class Confessions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = Database(
-            "database/confessions.db", "confessions", tables=[confessions_table]
+        self.db: Database = Database(
+            "confessions", tables=[confessions_table]
         )
 
     async def cog_load(self) -> None:
@@ -56,8 +56,8 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
+        data = await db.fetch(
+            'confessions', f'guild_id = {ctx.guild.id}'
         )
 
         if data:
