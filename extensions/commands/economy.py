@@ -43,14 +43,18 @@ class Economy(commands.Cog):
         ctx: discord.Interaction,
         user: typing.Optional[discord.User] = None,
     ):
-        user = user or ctx.user
-        acc = await self.fetch_or_create_account(ctx.user)
+        if user is None:
+            user = ctx.user            
+        acc = await self.fetch_or_create_account(user)
         coins, cash = acc['coins'], acc['cash']
-        balEm = discord.Embed(title="Balance", colour = discord.Color.red())
+        if user is not None:
+            balEm = discord.Embed(title=f"**{user.name}** Balance", colour = discord.Color.red())
+        else:
+            balEm = discord.Embed(title="Balance", colour = discord.Color.red())
         balEm.add_field(name="Coins", value=coins)
         balEm.add_field(name="Cash", value=cash)
         if user.id != ctx.user.id:
-            balEm.set_footer(text=f"Requested by {ctx.user}", icon_url=user.avatar.url)
+            balEm.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.avatar.url)
         await ctx.response.send_message(embed=balEm)
 
 
