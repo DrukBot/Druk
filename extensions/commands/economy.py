@@ -49,7 +49,8 @@ class Economy(commands.Cog):
         balEm = discord.Embed(title="Balance", colour = discord.Color.red())
         balEm.add_field(name="Coins", value=coins)
         balEm.add_field(name="Cash", value=cash)
-        balEm.set_footer(text=f"Requested by {user}", icon_url=user.avatar.url)
+        if user.id != ctx.user.id:
+            balEm.set_footer(text=f"Requested by {user}", icon_url=user.avatar.url)
         await ctx.response.send_message(embed=balEm)
 
 
