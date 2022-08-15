@@ -50,7 +50,7 @@ class Economy(commands.Cog):
         balEm.add_field(name="Coins", value=coins)
         balEm.add_field(name="Cash", value=cash)
         if user.id != ctx.user.id:
-            balEm.set_footer(text=f"Requested by {user}", icon_url=user.avatar.url)
+            balEm.set_footer(text=f"Requested by {ctx.user}", icon_url=user.avatar.url)
         await ctx.response.send_message(embed=balEm)
 
 
