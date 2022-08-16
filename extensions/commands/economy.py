@@ -6,7 +6,9 @@ import typing
 from discord.ext import commands
 from discord import app_commands
 
-import components
+from components import (
+    paginator,
+)
 
 class Economy(commands.Cog):
     def __init__(self, bot):
@@ -69,8 +71,8 @@ class Economy(commands.Cog):
             pag.add_line(f"{i+1}. {ctx.guild.get_member(acc['user_id'])} - {acc['coins']} coins")
         em = discord.Embed(colour = discord.Color.red(), title="Leaderboard", description=pag.pages[0])
         em.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
-        v = components.paginator.Paginator(pag, ctx.user, embed = em)
-        await ctx.response.send_message(view = v)
+        v = paginator.Paginator(pag, ctx.user, embed = em)
+        await ctx.response.send_message(view = v, embed = em)
 
 
     @app_commands.command(name="transfer")
