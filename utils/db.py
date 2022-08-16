@@ -13,9 +13,9 @@ import datetime
 
 SQLTYPES = {
     int: "BIGINT",
-    str: "TEXT",
+    str: "LONGTEXT",
     bool: "BOOLEAN",
-    bytes: "BLOB",
+    bytes: "LONGBLOB",
     datetime.datetime: "DATETIME",
 }
 
@@ -81,11 +81,14 @@ class Database:
         """Create a table in the database."""
         return await self.execute(table.create())
 
-    async def fetch(self, table: str, where: str, all: bool = False) -> asyncpg.Record:
+    async def fetch(self, table: str, where: str = None, *, all: bool = False, order_by: str = None) -> asyncpg.Record:
         """Select a row from the database."""
+        q=f"SELECT * FROM {table}"
+        q+=f"\n WHERE {where}" if where else ''
+        q+=f"\n ORDER BY {order_by}" if order_by else ''
         if all:
-            return await self.conn.fetch(f"SELECT * FROM {table} WHERE {where}")
-        return await self.conn.fetchrow(f"SELECT * FROM {table} WHERE {where}")
+            return await self.conn.fetch(q)
+        return await self.conn.fetchrow(q)
 
     async def insert(self, table: str, values: typing.List[typing.Any]):
         """Insert a row into the database."""

@@ -52,6 +52,16 @@ class Economy(commands.Cog):
         balEm.set_footer(text=f"Requested by {user}", icon_url=user.avatar.url)
         await ctx.response.send_message(embed=balEm)
 
+    @app_commands.command(name='leaderboard')
+    async def leaderboard(
+        self, ctx: discord.Interaction,
+    ):
+        accs = await self.db.fetch('accounts', all=True, order_by='coins DESC')
+        em = discord.Embed(title="Leaderboard", colour = discord.Color.red())
+        for i, acc in enumerate(accs):
+            em.add_field(name=f"{i+1}. {ctx.guild.get_member(acc['user_id'])}", value=acc['coins'])
+        await ctx.response.send_message(embed=em)
+
 
 accounts_table = utils.Table(
     "accounts",
