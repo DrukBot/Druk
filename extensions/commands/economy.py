@@ -45,13 +45,18 @@ class Economy(commands.Cog):
         ctx: discord.Interaction,
         user: typing.Optional[discord.User] = None,
     ):
-        user = user or ctx.user
-        acc = await self.fetch_or_create_account(ctx.user)
+        if user is None:
+            user = ctx.user            
+        acc = await self.fetch_or_create_account(user)
         coins, cash = acc['coins'], acc['cash']
-        balEm = discord.Embed(title="Balance", colour = discord.Color.red())
+        if user is not None:
+            balEm = discord.Embed(title=f"**{user.name}** Balance", colour = discord.Color.red())
+        else:
+            balEm = discord.Embed(title="Balance", colour = discord.Color.red())
         balEm.add_field(name="Coins", value=coins)
         balEm.add_field(name="Cash", value=cash)
-        balEm.set_footer(text=f"Requested by {user}", icon_url=user.display_avatar.url)
+        if user.id != ctx.user.id:
+            balEm.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
         await ctx.response.send_message(embed=balEm)
 
     @app_commands.command(name='leaderboard')
@@ -66,6 +71,29 @@ class Economy(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
         v = components.paginator.Paginator(pag, ctx.user, embed = em)
         await ctx.response.send_message(view = v)
+
+
+    @app_commands.command(name="transfer")
+    async def transfer(
+        self,
+        ctx: discord.Interaction,
+        recipient: discord.User,
+        amount: int
+    ):
+        sender_acc = await self.fetch_or_create_account(ctx.user)
+        recipient_acc = await self.fetch_or_create_account(recipient)
+        if sender_acc['coins'] < amount:
+            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {sender_acc['coins']} coins.\nYou are {amount - sender_acc['coins']} coins short!")
+            await ctx.response.send_message(embed=insufficient_embed)
+            return
+        await self.db.update('accounts', {'coins': sender_acc['coins']-amount}, f'user_id = {ctx.user.id}')
+        await self.db.update('accounts', {'coins': recipient_acc['coins']+amount}, f'user_id = {recipient.id}')
+
+        success_embed = discord.Embed(title="Success!", description=f"You successfully sent {amount} coins to <@{recipient.id}>")
+        success_embed.add_field(name="Your balance", value=f"{sender_acc['coins']-amount}")
+        success_embed.add_field(name="Their balance", value=f"{recipient_acc['coins']+amount}")
+
+        await ctx.response.send_message(embed=success_embed)
 
 
 accounts_table = utils.Table(
