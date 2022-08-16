@@ -6,6 +6,8 @@ import typing
 from discord.ext import commands
 from discord import app_commands
 
+import components
+
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -49,7 +51,7 @@ class Economy(commands.Cog):
         balEm = discord.Embed(title="Balance", colour = discord.Color.red())
         balEm.add_field(name="Coins", value=coins)
         balEm.add_field(name="Cash", value=cash)
-        balEm.set_footer(text=f"Requested by {user}", icon_url=user.avatar.url)
+        balEm.set_footer(text=f"Requested by {user}", icon_url=user.display_avatar.url)
         await ctx.response.send_message(embed=balEm)
 
     @app_commands.command(name='leaderboard')
@@ -57,10 +59,13 @@ class Economy(commands.Cog):
         self, ctx: discord.Interaction,
     ):
         accs = await self.db.fetch('accounts', all=True, order_by='coins DESC')
-        em = discord.Embed(title="Leaderboard", colour = discord.Color.red())
+        pag = commands.Paginator('','',linesep='\n\n')
         for i, acc in enumerate(accs):
-            em.add_field(name=f"{i+1}. {ctx.guild.get_member(acc['user_id'])}", value=acc['coins'])
-        await ctx.response.send_message(embed=em)
+            pag.add_line(f"{i+1}. {ctx.guild.get_member(acc['user_id'])} - {acc['coins']} coins")
+        em = discord.Embed(colour = discord.Color.red(), title="Leaderboard", description=pag.pages[0])
+        em.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
+        v = components.paginator.Paginator(pag, ctx.user, embed = em)
+        await ctx.response.send_message(view = v)
 
 
 accounts_table = utils.Table(
