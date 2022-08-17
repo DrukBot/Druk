@@ -97,7 +97,7 @@ class Economy(commands.Cog):
         await self.db.update('accounts', {'coins': sender_acc['coins']-amount}, f'user_id = {ctx.user.id}')
         await self.db.update('accounts', {'coins': recipient_acc['coins']+amount}, f'user_id = {recipient.id}')
 
-        success_embed = discord.Embed(title="Success!", description=f"You successfully sent {amount} coins to <@{recipient.id}>")
+        success_embed = discord.Embed(title="Success!", description=f"You successfully sent {amount} coins to {recipient.mention}")
         success_embed.add_field(name="Your balance", value=f"{sender_acc['coins']-amount}")
         success_embed.add_field(name="Their balance", value=f"{recipient_acc['coins']+amount}")
 
@@ -120,7 +120,7 @@ class Economy(commands.Cog):
         victim_bal = await self.fetch_or_create_account(user)
 
         if victim_bal['coins'] < 200:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", f"<@{user.id}> doesn't have enough coins to steal"))
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", f"{user.mention} doesn't have enough coins to steal"))
             return
 
         luck = random.randint(65, 75)
@@ -130,12 +130,12 @@ class Economy(commands.Cog):
             await self.db.update('accounts', {'coins': victim_bal['coins']-r_amt}, f'user_id={user.id}')
             await self.db.update('accounts', {'coins': author_bal['coins']+r_amt}, f'user_id={ctx.user.id}')
 
-            await ctx.response.send_message(embed=utils.Embed.SUCCESS(f"You robbed <@{user.id}>", f"You stole {r_amt} coins from <@{user.id}>"))
+            await ctx.response.send_message(embed=utils.Embed.SUCCESS(f"You robbed {user.mention}", f"You stole {r_amt} coins from {user.mention}"))
 
         else:
             await self.db.update('accounts', {'coins': author_bal['coins']-r_amt}, f'user_id={ctx.user.id}')
             
-            await ctx.response.send_message(embed=utils.Embed.ERROR(f"You tried to rob <@{user.id}>", f"You got caught robbing <@{user.id}> and were fined {r_amt} coins"))
+            await ctx.response.send_message(embed=utils.Embed.ERROR(f"You tried to rob {user.mention}", f"You got caught robbing {user.mention} and were fined {r_amt} coins"))
 
 
 accounts_table = utils.Table(
