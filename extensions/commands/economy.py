@@ -82,6 +82,9 @@ class Economy(commands.Cog):
         recipient: discord.User,
         amount: int
     ):
+        if amount < 1:
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there", "You can't be trying to steal money, only use positive numbers"))
+            return
         sender_acc = await self.fetch_or_create_account(ctx.user)
         recipient_acc = await self.fetch_or_create_account(recipient)
         if sender_acc['coins'] < amount:
