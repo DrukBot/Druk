@@ -14,13 +14,13 @@ from utils.utils import Embed
 dotenv.load_dotenv()
 
 
-class Miscellaneous(commands.Cog):
+class Miscellaneous(commands.Cog, name=):
     def __init__(self, bot):
         self.bot = bot
 
     misc = app_commands.Group(name="misc", description="Get information about thing.")
 
-    @misc.command(name="weather", description="Get the weather in a city.")
+    @app_commands.command(name="weather", description="Get the weather in a city.")
     @app_commands.describe(city="The city you want to get the weather from.")
     async def weather(self, ctx: discord.Interaction, city: str):
 
@@ -66,7 +66,7 @@ class Miscellaneous(commands.Cog):
         await ctx.response.send_message(embed=embed)
 
     
-    @misc.command(name="would-you-rather", description="Play would you rather")
+    @app_commands.command(name="would-you-rather", description="Play would you rather")
     @app_commands.describe(
         rating="The age rating you would like"
     )
@@ -100,7 +100,7 @@ class Miscellaneous(commands.Cog):
 
 
 
-    @misc.command(name="truth-or-dare", description="Get a truth or dare.")
+    @app_commands.command(name="truth-or-dare", description="Get a truth or dare.")
     @app_commands.describe(
         category="The category of the truth or dare.",
         type="The type of the truth or dare.",
@@ -138,7 +138,7 @@ class Miscellaneous(commands.Cog):
         )
         await ctx.response.send_message(embed=embed)
 
-    @misc.command(name="wiki", description="Search wikipedia!")
+    @app_commands.command(name="wiki", description="Search wikipedia!")
     @app_commands.describe(search="The item you want to search for")
     async def wiki(self, ctx: discord.Interaction, search: str):
         wiki_wiki = Wikipedia("en", extract_format=ExtractFormat.WIKI)
