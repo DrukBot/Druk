@@ -22,7 +22,7 @@ class Economy(commands.Cog):
         acc = await self.db.fetch('accounts', f"user_id = {user.id}")
         if not acc:
             await self.db.insert('accounts', (user.id, 100, 0))
-            acc = {'user_id': user.id, 'balance': 100, 'bank': 0}
+            acc = {'user_id': user.id, 'coins': 100, 'bank': 0}
         return acc
 
     @app_commands.command(name='work')

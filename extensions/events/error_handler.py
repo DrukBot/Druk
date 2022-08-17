@@ -29,7 +29,7 @@ class ErrorHandler(commands.Cog):
             await ctx.response.send_message(
                 embed=utils.Embed.ERROR(
                     "On Cooldown",
-                    f"You can use {ctx.command.name} again after **{error.retry_after:.2f}** seconds!",
+                    f"You can use command **`{ctx.command.name}`** again after **{error.retry_after:.2f}** seconds!",
                 )
             )
 
