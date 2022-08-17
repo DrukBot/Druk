@@ -1,3 +1,7 @@
-This is Druk made for the Bot Jam 2022
+# Druk
 
-Druk is a work in progress but offers many different features
+
+Druk is an open-source Discord bot made in Python.
+It was initialy meant to be an entry for a bot jam, but we, the devs, decided to continue the bot's development.
+
+
