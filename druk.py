@@ -1,4 +1,5 @@
 import os
+import paramiko
 import discord
 import utils.utils as utils
 from datetime import datetime
@@ -16,6 +17,7 @@ EXTENSIONS = (
     "extensions.commands.meta",
     "extensions.commands.moderation",
     "extensions.commands.economy",
+    "extensions.commands.bot_info",
     "extensions.events.error_handler",
 )
 
@@ -40,13 +42,25 @@ class Druk(commands.Bot):
         )
 
         self.token: str = os.environ["TOKEN"]
+        self.root_directory = "."
         self.starting_time = datetime.now().timestamp()
+        self.ssh_session = paramiko.SSHClient()
+        self.ssh_session.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh_session.connect(os.environ['SSHIP'], 22, os.environ['SSHUSER'], os.environ['SSHPASS'], allow_agent=False, look_for_keys=False)
+        utils.log(f"Successfully started ssh session as {os.environ['SSHIP']}")
         self.invite_link = discord.utils.oauth_url(
             client_id=os.environ["APP_ID"],
             permissions=discord.Permissions(permissions=8),
             scopes=["bot", "applications.commands"],
         )
         self.extensions_list = EXTENSIONS
+        self.cog_list = (
+            "Bot Info",
+            "Economy",
+            "Report",
+            "Confessions",
+            "Miscellaneous"
+        )
         self.add_persistent_views = False
 
     async def setup_hook(self) -> None:
