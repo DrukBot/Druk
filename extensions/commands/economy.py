@@ -1,4 +1,5 @@
 from pydoc import describe
+from tkinter import S
 import discord
 import random
 import utils
@@ -34,29 +35,26 @@ class Economy(commands.Cog):
         await ctx.followup.send(embed=embed, view=RegisterUser(user, self.db))
 
 
-    async def getUserAccount(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
+    async def get_user_account(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
         acc = await self.db.fetch('accounts', f"user_id = {user.id}")
 
-        if not acc:
-            embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
-            await ctx.response.send_message(embed=embed)
-            return
-        
-        return acc
+        if acc:
+            return acc
+        embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
+        await ctx.response.send_message(embed=embed)
+    
 
-    async def getUserSettings(self, ctx, user: typing.Union[discord.User, discord.Member]):
-        acc_settings = await self.db.fetch('settings', f"user_id = {user.id}")
+    async def get_user_settings(self, ctx, user: typing.Union[discord.User, discord.Member]):
+        S = await self.db.fetch('settings', f"user_id = {user.id}")
 
-        if not acc_settings:
-            embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
-            await ctx.response.send_message(embed=embed)
-            return
-
-        return acc_settings
+        if s:
+            return s
+        embed = Embed(description=f"{user} is not a registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
+        await ctx.response.send_message(embed=embed)
 
 
     @app_commands.command(name="register")
-    async def register(self, ctx: discord.Interaction):
+    async def _register(self, ctx: discord.Interaction):
         await self.register(ctx, ctx.user)
         
 
@@ -83,27 +81,25 @@ class Economy(commands.Cog):
         user: typing.Optional[discord.User] = None,
     ):  
         user = user or ctx.user
-        acc = await self.getUserAccount(ctx, user)
-        userSettings = self.getUserSettings(ctx, user)
+        acc = await self.get_user_account(ctx, user)
+        settings = self.get_user_settings(ctx, user)
 
-        if userSettings["privacy"] is True and user != ctx.user:
-            await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
-            return
+        if settings["privacy"] is True and user != ctx.user:
+            return await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
 
         if user.bot:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)), ephemeral=True)
-            return    
+            return await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)), ephemeral=True)   
 
         coins, cash = acc['coins'], acc['cash']
 
-        walletEmbed = discord.Embed(description="**Wallet**").set_author(name=user, icon_url=user.display_avatar.url)
-        walletEmbed.add_field(name="Coins", value=coins)
-        walletEmbed.add_field(name="Cash", value=cash)
+        wE = discord.Embed(description="**Wallet**").set_author(name=user, icon_url=user.display_avatar.url)
+        wE.add_field(name="Coins", value=coins)
+        wE.add_field(name="Cash", value=cash)
 
         if user.id != ctx.user.id:
-            walletEmbed.set_footer(text=f"Requested by {ctx.user}")
+            wE.set_footer(text=f"Requested by {ctx.user}")
 
-        await ctx.response.send_message(embed=walletEmbed)
+        await ctx.response.send_message(embed=wE)
 
 
     @app_commands.command(name='leaderboard')
@@ -131,22 +127,22 @@ class Economy(commands.Cog):
         amount: int
     ):
         if amount < 1:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there", "You can't be trying to steal money, only use positive numbers"))
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there!", "You can't be trying to steal money, only use positive numbers"))
             return
 
-        senderAccount = await self.getUserAccount(ctx, ctx.user)
-        recipientAccount = await self.getUserAccount(ctx, recipient)
+        sa = await self.get_user_ccount(ctx, ctx.user)
+        ra = await self.get_user_account(ctx, recipient)
 
-        if senderAccount['coins'] < amount:
-            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {senderAccount['coins']} coins.\nYou are {amount - senderAccount['coins']} coins short!")
+        if sa['coins'] < amount:
+            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {sa['coins']} coins.\nYou are {amount - sa['coins']} coins short!")
             await ctx.response.send_message(embed=insufficient_embed)
             return
-        await self.db.update('accounts', {'coins': senderAccount['coins']-amount}, f'user_id = {ctx.user.id}')
-        await self.db.update('accounts', {'coins': recipientAccount['coins']+amount}, f'user_id = {recipient.id}')
+        await self.db.update('accounts', {'coins': sa['coins']-amount}, f'user_id = {ctx.user.id}')
+        await self.db.update('accounts', {'coins': ra['coins']+amount}, f'user_id = {recipient.id}')
 
-        successEmbed = Embed(description=f"Transfered `{amount}` Credits to **{recipient}** Account.").set_author(name=ctx.user, icon_url=ctx.user.display_avatar.url)
+        se = Embed(description=f"Transfered `{amount}` Credits to **{recipient}** Account.").set_author(name=ctx.user, icon_url=ctx.user.display_avatar.url)
 
-        await ctx.response.send_message(embed=successEmbed)
+        await ctx.response.send_message(embed=se)
 
 
 
