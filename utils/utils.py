@@ -5,14 +5,21 @@ __all__ = (
     "COLOURS",
 )
 
+import os
+import dotenv
+import typing
 import discord
+import aiohttp
 from colorama import Fore, Style
+
+dotenv.load_dotenv()
 
 LOG_LEVELS = {
     "info": "green",
     "warn": "yellow",
     "error": "red",
 }
+
 
 
 def log(text: str, level: str = "info"):
@@ -23,6 +30,7 @@ def log(text: str, level: str = "info"):
         )
     )
 
+        
 
 def colour(text: str, colour: str):
     return getattr(Fore, colour.upper(), "") + text + Style.RESET_ALL
@@ -63,3 +71,5 @@ class Embed(discord.Embed):
             ).url,
         )
         return embed
+
+

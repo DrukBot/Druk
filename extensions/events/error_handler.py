@@ -34,13 +34,22 @@ class ErrorHandler(commands.Cog):
             )
 
         else:
-            await ctx.response.send_message(
-                embed=utils.Embed.ERROR(
-                    "Uh oh!",
-                    f"```\n{traceback.format_exc()}\n```",
+            try:
+                await ctx.response.send_message(
+                    embed=utils.Embed.ERROR(
+                        "Uh oh!",
+                        f"```\n{traceback.format_exc()}\n```",
+                    )
                 )
-            )
-            utils.log(error, "error")
+                utils.log(error, "error")
+            except discord.errors.InteractionResponded:
+                await ctx.edit_original_response(
+                    embed=utils.Embed.ERROR(
+                        "Uh oh!",
+                        f"```\n{traceback.format_exc()}\n```",
+                    )
+                )
+                utils.log(error, "error")
 
 
 
