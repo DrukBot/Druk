@@ -17,7 +17,7 @@ class RegisterUser(discord.ui.View):
             return
 
         await self.db.insert('accounts', (self.user.id, 500, 0))
-        await self.db.insert('settings', (self.user.id, False))
+        await self.db.insert('settings', (self.user.id, True, False))
         embed = utils.Embed(description="Successfully registered your account!").set_author(name="User Registered!", icon_url=self.user.display_avatar.url)
         await ctx.response.send_message(embed=embed, ephemeral=True)
 
