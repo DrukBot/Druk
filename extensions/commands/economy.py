@@ -9,6 +9,7 @@ from discord import app_commands
 from components import (
     paginator,
 )
+from utils.utils import log_webhook
 
 class Economy(commands.Cog):
     def __init__(self, bot):
@@ -23,6 +24,7 @@ class Economy(commands.Cog):
         if not acc:
             await self.db.insert('accounts', (user.id, 100, 0))
             acc = {'user_id': user.id, 'coins': 100, 'cash': 0}
+            await log_webhook(embed=discord.Embed(title="Account created", description=f"User: {user.name}"))
         return acc
 
     @app_commands.command(name='work')
@@ -84,7 +86,10 @@ class Economy(commands.Cog):
         ctx: discord.Interaction,
         recipient: discord.User,
         amount: int
-    ):
+    ):  
+        if recipient.bot:
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)))
+            return  
         if amount < 1:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there", "You can't be trying to steal money, only use positive numbers"))
             return
@@ -112,6 +117,10 @@ class Economy(commands.Cog):
         ctx: discord.Interaction,
         user: discord.User
     ):
+        if user.bot:
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)))
+            return  
+            
         if user.id == ctx.user.id:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", "You can't rob yourself!"))
             return
