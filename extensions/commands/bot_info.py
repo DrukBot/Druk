@@ -1,7 +1,4 @@
-from http import server
 from platform import python_version
-from pydoc import describe
-from tkinter import E
 import discord
 
 from discord.ext import commands
@@ -35,7 +32,7 @@ class botInfo(commands.Cog, name="Bot Info"):
     ):
         uptime = datetime.now().timestamp() - self.bot.starting_time
 
-        uptime_embed = discord.Embed(title="Uptime", color=discord.Color.red())
+        uptime_embed = discord.Embed(title="Uptime", cor=discord.Color.red())
         uptime_embed.add_field(name="Up for", value=f"{uptime} seconds")
 
         await ctx.response.send_message(embed=uptime_embed)

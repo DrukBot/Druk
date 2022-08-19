@@ -29,7 +29,6 @@ def log(text: str, level: str = "info"):
             colour=LOG_LEVELS.get(level, "info"),
         )
     )
-
         
 
 def colour(text: str, colour: str):
@@ -71,5 +70,3 @@ class Embed(discord.Embed):
             ).url,
         )
         return embed
-
-
