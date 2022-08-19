@@ -1,7 +1,4 @@
-from http import server
 from platform import python_version
-from pydoc import describe
-from tkinter import E
 import discord
 
 from discord.ext import commands

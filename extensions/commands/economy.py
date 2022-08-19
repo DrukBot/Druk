@@ -1,3 +1,4 @@
+from pydoc import describe
 import discord
 import random
 import utils
@@ -9,6 +10,9 @@ from discord import app_commands
 from components import (
     paginator,
 )
+from ...utils.utils import Embed
+from components.economy import RegisterUser
+
 
 class Economy(commands.Cog):
     def __init__(self, bot):
@@ -18,12 +22,41 @@ class Economy(commands.Cog):
     async def cog_load(self) -> None:
         await self.db.connect()
 
-    async def fetch_or_create_account(self, user: typing.Union[discord.User, discord.Member]) -> typing.Dict[str, typing.Any]:
+    async def register(self, ctx: discord.Interaction, user: discord.User):
+        acc = self.db.fetch('accounts', f"user_id = {user.id}")
+        if acc:
+            await ctx.response.send_message("You are already a registered user!", ephemeral=True)
+            return
+
+        embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE DO").set_author(name="Druk Rules!", icon_url=self.bot.display_avatar.url)
+        await ctx.followup.send(embed=embed, view=RegisterUser(user, self.db))
+
+
+    async def getUserAccount(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
         acc = await self.db.fetch('accounts', f"user_id = {user.id}")
+
         if not acc:
-            await self.db.insert('accounts', (user.id, 100, 0))
-            acc = {'user_id': user.id, 'coins': 100, 'cash': 0}
+            embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
+            await ctx.response.send_message(embed=embed)
+            return
+        
         return acc
+
+    async def getUserSettings(self, ctx, user: typing.Union[discord.User, discord.Member]):
+        acc_settings = await self.db.fetch('settings', f"user_id = {user.id}")
+
+        if not acc_settings:
+            embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
+            await ctx.response.send_message(embed=embed)
+            return
+
+        return acc_settings
+
+
+    @app_commands.command(name="register")
+    async def register(self, ctx: discord.Interaction):
+        await self.register(ctx, ctx.user)
+        
 
     @app_commands.command(name='work')
     @app_commands.checks.cooldown(1, 120)
@@ -31,7 +64,7 @@ class Economy(commands.Cog):
         self,
         ctx: discord.Interaction,
     ):
-        acc = await self.fetch_or_create_account(ctx.user)
+        acc = await self.check_and_fetch_account(ctx, ctx.user)
         cs = random.randint(50, 400)
         await self.db.update('accounts', {'coins': acc['coins']+cs}, f"user_id = {ctx.user.id}")
         await ctx.response.send_message(
@@ -41,28 +74,35 @@ class Economy(commands.Cog):
             )
         )
 
-    @app_commands.command(name='balance')
-    async def balance(
+    @app_commands.command(name='wallet')
+    async def wallet(
         self,
         ctx: discord.Interaction,
         user: typing.Optional[discord.User] = None,
-    ):
-        if user is None:
-            user = ctx.user
+    ):  
+        user = user or ctx.user
+        acc = await self.getUserAccount(ctx, user)
+        userSettings = self.getUserSettings(ctx, user)
+
+        if userSettings["privacy"] is True and user != ctx.user:
+            await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
+            return
+
         if user.bot:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)))
-            return     
-        acc = await self.fetch_or_create_account(user)
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)), ephemeral=True)
+            return    
+
         coins, cash = acc['coins'], acc['cash']
-        if user is not None:
-            balEm = discord.Embed(title=f"**{user.name}** Balance", colour = discord.Color.red())
-        else:
-            balEm = discord.Embed(title="Balance", colour = discord.Color.red())
-        balEm.add_field(name="Coins", value=coins)
-        balEm.add_field(name="Cash", value=cash)
+
+        walletEmbed = discord.Embed(description="**Wallet**").set_author(name=user, icon_url=user.display_avatar.url)
+        walletEmbed.add_field(name="Coins", value=coins)
+        walletEmbed.add_field(name="Cash", value=cash)
+
         if user.id != ctx.user.id:
-            balEm.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
-        await ctx.response.send_message(embed=balEm)
+            walletEmbed.set_footer(text=f"Requested by {ctx.user}")
+
+        await ctx.response.send_message(embed=walletEmbed)
+
 
     @app_commands.command(name='leaderboard')
     async def leaderboard(
@@ -88,54 +128,21 @@ class Economy(commands.Cog):
         if amount < 1:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there", "You can't be trying to steal money, only use positive numbers"))
             return
-        sender_acc = await self.fetch_or_create_account(ctx.user)
-        recipient_acc = await self.fetch_or_create_account(recipient)
-        if sender_acc['coins'] < amount:
-            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {sender_acc['coins']} coins.\nYou are {amount - sender_acc['coins']} coins short!")
+
+        senderAccount = await self.getUserAccount(ctx, ctx.user)
+        recipientAccount = await self.getUserAccount(ctx, recipient)
+
+        if senderAccount['coins'] < amount:
+            insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {senderAccount['coins']} coins.\nYou are {amount - senderAccount['coins']} coins short!")
             await ctx.response.send_message(embed=insufficient_embed)
             return
-        await self.db.update('accounts', {'coins': sender_acc['coins']-amount}, f'user_id = {ctx.user.id}')
-        await self.db.update('accounts', {'coins': recipient_acc['coins']+amount}, f'user_id = {recipient.id}')
+        await self.db.update('accounts', {'coins': senderAccount['coins']-amount}, f'user_id = {ctx.user.id}')
+        await self.db.update('accounts', {'coins': recipientAccount['coins']+amount}, f'user_id = {recipient.id}')
 
-        success_embed = discord.Embed(title="Success!", description=f"You successfully sent {amount} coins to {recipient.mention}")
-        success_embed.add_field(name="Your balance", value=f"{sender_acc['coins']-amount}")
-        success_embed.add_field(name="Their balance", value=f"{recipient_acc['coins']+amount}")
+        successEmbed = Embed(description=f"Transfered `{amount}` Credits to **{recipient}** Account.").set_author(name=ctx.user, icon_url=ctx.user.display_avatar.url)
 
-        await ctx.response.send_message(embed=success_embed)
+        await ctx.response.send_message(embed=successEmbed)
 
-
-    @app_commands.command(name="rob")
-    @app_commands.describe(user="The user you want to rob")
-    @app_commands.checks.cooldown(1, 300)
-    async def rob(
-        self,
-        ctx: discord.Interaction,
-        user: discord.User
-    ):
-        if user.id == ctx.user.id:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", "You can't rob yourself!"))
-            return
-            
-        author_bal = await self.fetch_or_create_account(ctx.user)
-        victim_bal = await self.fetch_or_create_account(user)
-
-        if victim_bal['coins'] < 200:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", f"{user.mention} doesn't have enough coins to steal"))
-            return
-
-        luck = random.randint(65, 75)
-        r_amt = random.randint(110, 500)
-
-        if luck in (69, 70):
-            await self.db.update('accounts', {'coins': victim_bal['coins']-r_amt}, f'user_id={user.id}')
-            await self.db.update('accounts', {'coins': author_bal['coins']+r_amt}, f'user_id={ctx.user.id}')
-
-            await ctx.response.send_message(embed=utils.Embed.SUCCESS(f"You robbed {user.mention}", f"You stole {r_amt} coins from {user.mention}"))
-
-        else:
-            await self.db.update('accounts', {'coins': author_bal['coins']-r_amt}, f'user_id={ctx.user.id}')
-            
-            await ctx.response.send_message(embed=utils.Embed.ERROR(f"You tried to rob {user.mention}", f"You got caught robbing {user.mention} and were fined {r_amt} coins"))
 
 
 accounts_table = utils.Table(
@@ -152,8 +159,8 @@ settings_table = utils.Table(
     "settings",
     [
         utils.Column("user_id", int),
-        utils.Column("theft_pings", bool),
-        utils.Column("passive_mode", bool)
+        utils.Column("pings", bool),
+        utils.Column("privacy", bool)
     ],
     primary_key="user_id"
 )

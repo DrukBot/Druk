@@ -30,7 +30,6 @@ def log(text: str, level: str = "info"):
         )
     )
 
-
 async def log_webhook(embed: discord.Embed, *, content: typing.Optional[str]=None):
     async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.partial(id=int(os.environ["LOG_WEBHOOK_ID"]), token=os.environ["LOG_WEBHOOK_TOKEN"], session=session)
@@ -77,5 +76,3 @@ class Embed(discord.Embed):
             ).url,
         )
         return embed
-
-
