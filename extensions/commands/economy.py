@@ -88,7 +88,7 @@ class Economy(commands.Cog):
         amount: int
     ):  
         if recipient.bot:
-            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)))
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(recipient.id)))
             return  
         if amount < 1:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there", "You can't be trying to steal money, only use positive numbers"))
@@ -120,7 +120,7 @@ class Economy(commands.Cog):
         if user.bot:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)))
             return  
-            
+
         if user.id == ctx.user.id:
             await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", "You can't rob yourself!"))
             return
