@@ -7,3 +7,6 @@ python-dotenv==0.20.0
 nudepy==0.5.1
 akinator==1.0.1
 Wikipedia-API==0.5.4
+paramiko
+py-cpuinfo
+psutil
