@@ -5,14 +5,21 @@ __all__ = (
     "COLOURS",
 )
 
+import os
+import dotenv
+import typing
 import discord
+import aiohttp
 from colorama import Fore, Style
+
+dotenv.load_dotenv()
 
 LOG_LEVELS = {
     "info": "green",
     "warn": "yellow",
     "error": "red",
 }
+
 
 
 def log(text: str, level: str = "info"):
@@ -23,6 +30,13 @@ def log(text: str, level: str = "info"):
         )
     )
 
+
+async def log_webhook(embed: discord.Embed, *, content: typing.Optional[str]=None):
+    async with aiohttp.ClientSession() as session:
+        webhook = discord.Webhook.partial(id=int(os.environ["LOG_WEBHOOK_ID"]), token=os.environ["LOG_WEBHOOK_TOKEN"], session=session)
+        await webhook.send(content=content, embed=embed)
+    await session.close()
+        
 
 def colour(text: str, colour: str):
     return getattr(Fore, colour.upper(), "") + text + Style.RESET_ALL
@@ -63,3 +77,5 @@ class Embed(discord.Embed):
             ).url,
         )
         return embed
+
+
