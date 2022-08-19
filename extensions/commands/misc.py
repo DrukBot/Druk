@@ -14,7 +14,7 @@ from utils.utils import Embed
 dotenv.load_dotenv()
 
 
-class Miscellaneous(commands.Cog, name=):
+class Miscellaneous(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
