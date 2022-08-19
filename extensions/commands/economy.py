@@ -17,7 +17,7 @@ from components.economy import RegisterUser
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db: utils.Database = utils.Database("economy", [accounts_table])
+        self.db: utils.Database = utils.Database("economy", [accounts_table, settings_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()
@@ -84,9 +84,9 @@ class Economy(commands.Cog):
     ):  
         user = user or ctx.user
         acc = await self.getUserAccount(ctx, user)
-        userSettings = self.getUserSettings(ctx, user)
+        userSettings = await self.getUserSettings(ctx, user)
 
-        if userSettings["privacy"] is True and user != ctx.user:
+        if userSettings["privacy"] and user != ctx.user:
             await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
             return
 
