@@ -18,7 +18,7 @@ from components.economy import RegisterUser
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db: utils.Database = utils.Database("economy", [accounts_table])
+        self.db: utils.Database = utils.Database("economy", [accounts_table, settings_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()
