@@ -1,4 +1,3 @@
-from pydoc import describe
 import discord
 import random
 import utils
@@ -22,32 +21,34 @@ class Economy(commands.Cog):
     async def cog_load(self) -> None:
         await self.db.connect()
 
-    async def register(self, ctx: discord.Interaction, user: discord.User):
+    async def registerUser(self, ctx: discord.Interaction, user: discord.User):
         if user.bot:
-            await ctx.followup.send("Bot's can't be registered!")
-        acc = self.db.fetch('accounts', f"user_id = {user.id}")
+            return await ctx.response.send_message("Bot's can't be registered!")
+        acc = await self.db.fetch('accounts', f"user_id = {user.id}")
         if acc:
             await ctx.response.send_message("You are already a registered user!", ephemeral=True)
             return
 
-        embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.display_avatar.url)
-        await ctx.followup.send(embed=embed, view=RegisterUser(user, self.db))
+        embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.user.display_avatar.url)
+        await ctx.response.send_message(content=user.mention, embed=embed, view=RegisterUser(user, self.db))
 
 
     async def getUserAccount(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
         acc = await self.db.fetch('accounts', f"user_id = {user.id}")
 
-        if not acc:
+        if acc is None:
             embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
             await ctx.response.send_message(embed=embed)
-            return
-        
+            return 
+
+
         return acc
+
 
     async def getUserSettings(self, ctx, user: typing.Union[discord.User, discord.Member]):
         acc_settings = await self.db.fetch('settings', f"user_id = {user.id}")
 
-        if not acc_settings:
+        if acc_settings is None:
             embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
             await ctx.response.send_message(embed=embed)
             return
@@ -57,7 +58,7 @@ class Economy(commands.Cog):
 
     @app_commands.command(name="register")
     async def register(self, ctx: discord.Interaction):
-        await self.register(ctx, ctx.user)
+        await self.registerUser(ctx, ctx.user)
         
 
     @app_commands.command(name='work')
@@ -66,7 +67,7 @@ class Economy(commands.Cog):
         self,
         ctx: discord.Interaction,
     ):
-        acc = await self.check_and_fetch_account(ctx, ctx.user)
+        acc = await self.getUserAccount(ctx, ctx.user)
         cs = random.randint(50, 400)
         await self.db.update('accounts', {'coins': acc['coins']+cs}, f"user_id = {ctx.user.id}")
         await ctx.response.send_message(
