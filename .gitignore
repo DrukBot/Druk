@@ -8,3 +8,4 @@ web/
 components/__pycache__/*
 utils/__pycache__/*
 proc_api/
+gen_stocks.py
