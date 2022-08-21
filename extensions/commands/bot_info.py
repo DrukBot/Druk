@@ -118,7 +118,7 @@ class botInfo(commands.Cog, name="Bot Info"):
 
             pag.add_line(f"Name: {g.name}\nOwner: {g.owner}\nOwner ID: {g.owner.id}\nMembers: {members}\nBots: {bots}\nInvite: {invite.url}")
         server_embed = discord.Embed(title="Servers", color=discord.Colour.green(), description=pag.pages[0])
-        view = paginator.Paginator(pag, ctx.user, embed = server_embed)
+        view = paginator.PaginatorView(pag, ctx.user, embed= server_embed)
 
         await ctx.edit_original_response(view=view, embed=server_embed)
 
