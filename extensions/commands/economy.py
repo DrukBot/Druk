@@ -159,6 +159,40 @@ class Economy(commands.Cog):
 
         await ctx.response.send_message(embed=successEmbed)
 
+    @app_commands.command(name="remove")
+    async def removeUser(self, ctx: discord.Interaction, user: discord.User = None):
+        if ctx.user.id not in self.bot.owner_ids:
+            return await ctx.response.send_message(embed=utils.Embed.ERROR("Woah there!", "You don't have permission to do that!"))
+        if user is None:
+            user = ctx.user
+
+        acc = await self.getUserAccount(ctx, user)
+        if acc is None:
+            return
+        accSettings = await self.getUserSettings(ctx, user)
+        if accSettings is None:
+            return
+        
+        await self.db.delete('accounts', f"user_id={user.id}")
+        await self.db.delete('settings', f"user_id={user.id}")
+
+        embed = utils.Embed.SUCCESS("Success!", f"{user.mention} has been removed from the database!\nThey had {acc['coins']} coins and {acc['cash']} cash")
+
+        await ctx.response.send_message(embed=embed)
+
+
+    @app_commands.command(name="list-stocks")
+    async def listStocks(self, ctx: discord.Interaction):
+        await ctx.response.defer()
+        pag = commands.Paginator('', '', max_size=100)
+        stocks = await self.db.fetch("stock_info", all=True)
+        for i, stock in enumerate(stocks):
+            pag.add_line(f"ID: {stock['stock_id']}\nDescription: {stock['name']}\nPrice: {stock['price']}\nRemaining: {stock['remaining']}")
+
+        stock_embed = discord.Embed(title="Stocks", color=discord.Color.green(), description=pag.pages[0])
+        view = paginator.PaginatorView(pag, ctx.user, embed=stock_embed)
+
+        await ctx.edit_original_response(view=view, embed=stock_embed)
 
 
 accounts_table = utils.Table(
