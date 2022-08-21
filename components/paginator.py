@@ -66,7 +66,7 @@ class PaginatorView(discord.ui.View):
             self.page -= 1
         await self.update_message(interaction)
 
-    @discord.ui.button(label = 1, style = discord.ButtonStyle.primary)
+    @discord.ui.button(label = 1, style = discord.ButtonStyle.primary, disabled=True)
     async def page_number(self, interaction: discord.Interaction, button: discord.ui.Button):
         return
 
