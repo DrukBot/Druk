@@ -26,13 +26,13 @@ class Economy(commands.Cog):
     async def register(self, ctx: discord.Interaction, user: discord.User):
         if user.bot:
             await ctx.followup.send("Bot's can't be registered!")
-        acc = self.db.fetch('accounts', f"user_id = {user.id}")
+        acc =  await self.db.fetch('accounts', f"user_id = {user.id}")
         if acc:
             await ctx.response.send_message("You are already a registered user!", ephemeral=True)
             return
 
-        embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.display_avatar.url)
-        await ctx.followup.send(embed=embed, view=RegisterUser(user, self.db))
+        embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.user.display_avatar.url)
+        await ctx.response.send_message(embed=embed, view=RegisterUser(user, self.db))
 
 
     async def get_user_account(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
@@ -42,7 +42,7 @@ class Economy(commands.Cog):
             return acc
         embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
         await ctx.response.send_message(embed=embed)
-    
+
 
     async def get_user_settings(self, ctx, user: typing.Union[discord.User, discord.Member]):
         S = await self.db.fetch('settings', f"user_id = {user.id}")
@@ -82,6 +82,8 @@ class Economy(commands.Cog):
     ):  
         user = user or ctx.user
         acc = await self.get_user_account(ctx, user)
+        if not acc:
+            return
         settings = self.get_user_settings(ctx, user)
 
         if settings["privacy"] is True and user != ctx.user:
@@ -104,14 +106,13 @@ class Economy(commands.Cog):
 
     @app_commands.command(name='leaderboard')
     async def leaderboard(
-        self, ctx: discord.Interaction,
+        self,
+        ctx: discord.Interaction,
     ):
         accs = await self.db.fetch('accounts', all=True, order_by='coins DESC')
         pag = paginator.Paginator(page_size = 100 )
         for i, acc in enumerate(accs):
             mem = ctx.guild.get_member(acc['user_id'])
-            if mem is None:
-                await self.db.delete('accounts', f"user_id = {acc['user_id']}")
             pag.add_line(f"{i+1}. {mem} - {acc['coins']} coins")
         em = discord.Embed(colour = discord.Color.red(), title="Leaderboard", description=pag.pages[0])
         em.set_footer(text=f"Requested by {ctx.user}", icon_url=ctx.user.display_avatar.url)
