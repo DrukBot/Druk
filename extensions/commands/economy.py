@@ -23,16 +23,16 @@ class Economy(commands.Cog):
     async def cog_load(self) -> None:
         await self.db.connect()
 
-    async def register(self, ctx: discord.Interaction, user: discord.User):
+    async def register_user(self, ctx: discord.Interaction, user: discord.User):
         if user.bot:
-            await ctx.followup.send("Bot's can't be registered!")
-        acc =  await self.db.fetch('accounts', f"user_id = {user.id}")
+            return await ctx.response.send_message("Bots can't be registered!")
+        acc = await self.db.fetch('accounts', f"user_id = {user.id}")
         if acc:
             await ctx.response.send_message("You are already a registered user!", ephemeral=True)
             return
 
         embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.user.display_avatar.url)
-        await ctx.response.send_message(embed=embed, view=RegisterUser(user, self.db))
+        await ctx.response.send_message(content=user.mention, embed=embed, view=RegisterUser(user, self.db))
 
 
     async def get_user_account(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
@@ -45,7 +45,7 @@ class Economy(commands.Cog):
 
 
     async def get_user_settings(self, ctx, user: typing.Union[discord.User, discord.Member]):
-        S = await self.db.fetch('settings', f"user_id = {user.id}")
+        s = await self.db.fetch('settings', f"user_id = {user.id}")
 
         if s:
             return s
@@ -54,8 +54,8 @@ class Economy(commands.Cog):
 
 
     @app_commands.command(name="register")
-    async def _register(self, ctx: discord.Interaction):
-        await self.register(ctx, ctx.user)
+    async def register(self, ctx: discord.Interaction):
+        await self.register_user(ctx, ctx.user)
         
 
     @app_commands.command(name='work')
@@ -64,7 +64,9 @@ class Economy(commands.Cog):
         self,
         ctx: discord.Interaction,
     ):
-        acc = await self.check_and_fetch_account(ctx, ctx.user)
+        acc = await self.get_user_account(ctx, ctx.user)
+        if acc is None:
+            return
         cs = random.randint(50, 400)
         await self.db.update('accounts', {'coins': acc['coins']+cs}, f"user_id = {ctx.user.id}")
         await ctx.response.send_message(
@@ -82,13 +84,14 @@ class Economy(commands.Cog):
     ):  
         user = user or ctx.user
         acc = await self.get_user_account(ctx, user)
-        if not acc:
+        if acc is None:
+            return await ctx.response.send_message("User is not registered!")
+        sa = await self.get_user_settings(ctx, user)
+        if sa is None:
             return
-        settings = self.get_user_settings(ctx, user)
 
-        if settings["privacy"] is True and user != ctx.user:
-            return await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
-
+        if sa["privacy"] is True and user != ctx.user:
+            await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
         if user.bot:
             return await ctx.response.send_message(embed=utils.Embed.ERROR("Woah There", "<@{}> is a bot, you can't do that".format(user.id)), ephemeral=True)   
 
@@ -97,9 +100,7 @@ class Economy(commands.Cog):
         wE = discord.Embed(description="**Wallet**").set_author(name=user, icon_url=user.display_avatar.url)
         wE.add_field(name="Coins", value=coins)
         wE.add_field(name="Cash", value=cash)
-
-        if user.id != ctx.user.id:
-            wE.set_footer(text=f"Requested by {ctx.user}")
+        wE.set_footer(text=f"Requested by {ctx.user}")
 
         await ctx.response.send_message(embed=wE)
 

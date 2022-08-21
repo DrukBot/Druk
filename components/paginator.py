@@ -36,63 +36,52 @@ class PaginatorView(discord.ui.View):
         self.paginator: Paginator = paginator
         self.author: typing.Union[discord.User, discord.Member] = author
         self.pages: int = len(paginator.pages)
-        self.page: int = 1
+        self.page: int = 0
         self.embed: discord.Embed = kwargs.pop("embed", None)
         if not self.embed:
             self.embed = discord.Embed(colour = discord.Color.red())
         self._original_embed_title = self.embed.title
         self.embed.title = f"{self._original_embed_title} [{self.page}/{self.pages}]"
 
-    async def update_message(self, interaction):
+    async def update_message(self, interaction: discord.Interaction):
         self.page_number.label = self.page
         self.embed.title = f'{self._original_embed_title} [{self.page+1}/{self.pages}]'
         self.embed.description = self.paginator.pages[self.page]
-        await interaction.message.edit(embed = self.embed, view = self)
+        await interaction.edit_original_response(embed = self.embed, view = self)
 
     #Buttons
 
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "⏮️")
-    async def first_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def first_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        if self.page == 0:
-            return
+        self.page = 0
         await self.update_message(interaction)
 
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "◀️")
-    async def previous_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def previous_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        page = self.page
-        if page == 0:
-            return
-        else:
+        if self.page != 0:
             self.page -= 1
         await self.update_message(interaction)
 
     @discord.ui.button(label = 1, style = discord.ButtonStyle.primary)
-    async def page_number(self, button: discord.ui.Button, interaction: discord.Interaction):
-        print("yo")
-        await interaction.response.send_message("yo")
+    async def page_number(self, interaction: discord.Interaction, button: discord.ui.Button):
         return
 
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "▶️")
-    async def next_page(self, button: discord.ui.Button, interaction: discord.Interaction):
-        print("siuu")
+    async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.followup.send("This is not for you", ephemeral = True)
         page = self.page
-        if page == self.pages - 1:
-            return
-        else:
+        if page != self.pages - 1:
             self.page += 1
         await self.update_message(interaction)
 
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "⏭️")
-    async def last_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def last_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        if self.page == self.pages - 1:
-            return
         self.page = self.pages - 1
         await self.update_message(interaction)
