@@ -68,6 +68,8 @@ class Economy(commands.Cog):
         ctx: discord.Interaction,
     ):
         acc = await self.getUserAccount(ctx, ctx.user)
+        if acc is None:
+            return
         cs = random.randint(50, 400)
         await self.db.update('accounts', {'coins': acc['coins']+cs}, f"user_id = {ctx.user.id}")
         await ctx.response.send_message(
@@ -85,7 +87,11 @@ class Economy(commands.Cog):
     ):  
         user = user or ctx.user
         acc = await self.getUserAccount(ctx, user)
+        if acc is None:
+            return
         userSettings = await self.getUserSettings(ctx, user)
+        if userSettings is None:
+            return
 
         if userSettings["privacy"] and user != ctx.user:
             await ctx.response.send_message(f"**{user}** has his wallet private.", ephemeral=True)
@@ -136,7 +142,11 @@ class Economy(commands.Cog):
             return
 
         senderAccount = await self.getUserAccount(ctx, ctx.user)
+        if senderAccount is None:
+            return
         recipientAccount = await self.getUserAccount(ctx, recipient)
+        if recipientAccount is None:
+            return
 
         if senderAccount['coins'] < amount:
             insufficient_embed = discord.Embed(title="Insufficient Funds!", description=f"You only have {senderAccount['coins']} coins.\nYou are {amount - senderAccount['coins']} coins short!")
