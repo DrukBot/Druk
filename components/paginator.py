@@ -36,7 +36,7 @@ class PaginatorView(discord.ui.View):
         self.paginator: Paginator = paginator
         self.author: typing.Union[discord.User, discord.Member] = author
         self.pages: int = len(paginator.pages)
-        self.page: int = 1
+        self.page: int = 0
         self.embed: discord.Embed = kwargs.pop("embed", None)
         if not self.embed:
             self.embed = discord.Embed(colour = discord.Color.red())
@@ -45,9 +45,9 @@ class PaginatorView(discord.ui.View):
 
     async def update_message(self, interaction: discord.Interaction):
         self.page_number.label = self.page
-        self.embed.title = f'{self._original_embed_title} [{self.page}/{self.pages}]'
-        self.embed.description = self.paginator.pages[self.page - 1]
-        await interaction.response.edit_message(embed = self.embed, view = self)
+        self.embed.title = f'{self._original_embed_title} [{self.page+1}/{self.pages}]'
+        self.embed.description = self.paginator.pages[self.page]
+        await interaction.edit_original_response(embed = self.embed, view = self)
 
     #Buttons
 
@@ -55,19 +55,14 @@ class PaginatorView(discord.ui.View):
     async def first_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        if self.page == 1:
-            return
-        self.page = 1
+        self.page = 0
         await self.update_message(interaction)
 
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "◀️")
     async def previous_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        page = self.page
-        if page == 1:
-            self.page = self.pages
-        else:
+        if self.page != 0:
             self.page -= 1
         await self.update_message(interaction)
 
@@ -78,11 +73,9 @@ class PaginatorView(discord.ui.View):
     @discord.ui.button(style = discord.ButtonStyle.secondary, emoji = "▶️")
     async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
-            return await interaction.response.send_message("This is not for you", ephemeral = True)
+            return await interaction.followup.send("This is not for you", ephemeral = True)
         page = self.page
-        if page == self.pages:
-            self.page = 1
-        else:
+        if page != self.pages - 1:
             self.page += 1
         await self.update_message(interaction)
 
@@ -90,7 +83,5 @@ class PaginatorView(discord.ui.View):
     async def last_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.author.id:
             return await interaction.response.send_message("This is not for you", ephemeral = True)
-        if self.page == self.pages:
-            return
-        self.page = self.pages
+        self.page = self.pages - 1
         await self.update_message(interaction)
