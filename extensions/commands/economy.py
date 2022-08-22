@@ -12,13 +12,13 @@ from components import (
     paginator,
 )
 
-from utils.utils import Embed
+from utils.utils import Embed, log
 from components.economy import RegisterUser
 
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db: utils.Database = utils.Database("economy", [accounts_table, settings_table])
+        self.db: utils.Database = utils.Database("economy", [accounts_table, settings_table, user_stock_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()
@@ -40,8 +40,8 @@ class Economy(commands.Cog):
 
         if acc:
             return acc
-        embed = Embed(description=f"{user} is not registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
-        await ctx.response.send_message(embed=embed)
+        else:
+            return None
 
 
     async def get_user_settings(self, ctx, user: typing.Union[discord.User, discord.Member]):
@@ -153,10 +153,10 @@ class Economy(commands.Cog):
         if user is None:
             user = ctx.user
 
-        acc = await self.getUserAccount(ctx, user)
+        acc = await self.get_user_account(ctx, user)
         if acc is None:
-            return
-        accSettings = await self.getUserSettings(ctx, user)
+            return await ctx.response.send_message("User is not registered!")
+        accSettings = await self.get_user_account(ctx, user)
         if accSettings is None:
             return
         
@@ -182,6 +182,21 @@ class Economy(commands.Cog):
         await ctx.edit_original_response(view=view, embed=stock_embed)
 
 
+    @app_commands.command(name="buy-stock")
+    async def buyStock(self, ctx: discord.Interaction):
+        await ctx.response.defer()
+
+        pag = commands.Paginator('', '', max_size=100)
+        stocks = await self.db.fetch("stock_info", all=True)
+        for i, stock in enumerate(stocks):
+            pag.add_line(f"ID: {stock['stock_id']}\nDescription: {stock['name']}\nPrice: {stock['price']}\nRemaining: {stock['remaining']}")
+
+        stock_embed = discord.Embed(title="Stocks", color=discord.Color.green(), description=pag.pages[0])
+        view = paginator.BuyStockPaginatorView(pag, ctx.user, embed=stock_embed, cache=stocks, db=self.db)
+
+        await ctx.edit_original_response(view=view, embed=stock_embed)
+
+
 accounts_table = utils.Table(
     "accounts",
     [
@@ -200,6 +215,17 @@ settings_table = utils.Table(
         utils.Column("privacy", bool)
     ],
     primary_key="user_id"
+)
+
+user_stock_table = utils.Table(
+    "user_stocks",
+    [
+        utils.Column("uid", "SERIAL"),
+        utils.Column("user_id", int),
+        utils.Column("stock_id", "TEXT"),
+        utils.Column("total_owned", int)
+    ],
+    primary_key="uid"
 )
 
 async def setup(bot):
