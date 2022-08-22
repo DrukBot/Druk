@@ -15,6 +15,7 @@ from components import (
 from utils.utils import Embed, log
 from components.economy import RegisterUser
 
+
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

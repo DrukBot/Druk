@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import dotenv
+
 import discord
 import aiohttp
 
@@ -15,7 +15,6 @@ from utils.utils import Embed
 from components.confessions import ChangeChannel, SendConfession
 from utils.db import Database, Table, Column
 
-dotenv.load_dotenv()
 
 
 class Confessions(commands.Cog):
@@ -50,6 +49,7 @@ class Confessions(commands.Cog):
         name="confessions", description="Post anonymous confessions"
     )
 
+
     @confessions.command(name="setup", description="Setup Confession in your server.")
     @app_commands.describe(channel="The channel in which confessions will be posted.")
     @app_commands.guild_only()
@@ -62,7 +62,7 @@ class Confessions(commands.Cog):
 
         if data:
             await ctx.response.send_message(
-                embed=Embed.SUCCESS(
+                embed=Embed.ERROR(
                     "Confessions is Already Setup!",
                     f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
                 ),
@@ -118,9 +118,7 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def toggle(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -131,11 +129,8 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE confessions SET toggle = ? WHERE guild_id = ?",
-            (mode.value, ctx.guild_id),
-        )
-        await db.commit()
+        await db.update('confessions', {'toggle': mode.value}, f"guild_id = {ctx.guild_id}")
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} Confessions!",
@@ -158,9 +153,7 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def detectnsfw(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -171,11 +164,8 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE confessions SET detect_nsfw = ? WHERE guild_id = ?",
-            (mode.value, ctx.guild_id),
-        )
-        await db.commit()
+        await db.update('confessions', {'detect_nsfw': mode.value}, f"guild_id = {ctx.guild_id}")
+
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
                 f"{mode.name} NSFW Detection!",
@@ -199,9 +189,7 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def image_support(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -212,11 +200,7 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE confessions SET allow_img = ? WHERE guild_id = ?",
-            (mode.value, ctx.guild_id),
-        )
-        await db.commit()
+        await db.update('confessions', {'allow_img': mode.value}, f"guild_id = {ctx.guild_id}")
 
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
@@ -231,9 +215,7 @@ class Confessions(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def settings(self, ctx: discord.Interaction):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -293,9 +275,7 @@ class Confessions(commands.Cog):
     ):
         db = self.db
 
-        data = await db.execute(
-            "SELECT * FROM confessions WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -357,7 +337,6 @@ confessions_table = Table(
         Column("toggle", str),  # 2
         Column("allow_img", str),  # 3
         Column("detect_nsfw", str),  # 4
-        Column("blacklisted_users", str),  # 5
     ],
 )
 

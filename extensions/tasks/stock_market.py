@@ -16,6 +16,7 @@ class StockMarket(commands.Cog):
         self.bot = bot
         self.db = Database("economy", tables=[stable])
 
+
     @tasks.loop(minutes=15)
     async def update_stocks(self):
         allstocks = await self.db.fetch('stock_info', all=True)

@@ -40,6 +40,10 @@ class COLOURS:
         return getattr(discord.Colour, name.lower())()
 
 
+class emoji:
+    SuccessURL = discord.PartialEmoji(name="success", animated=False, id=1004762059981983754).url
+    ErrorURL = discord.PartialEmoji(name="wrong", animated=False, id=1004762039618633839)
+
 COLOURS = COLOURS()
 
 
