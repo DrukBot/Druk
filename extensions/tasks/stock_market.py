@@ -1,4 +1,5 @@
 from time import sleep
+from turtle import update
 import discord
 
 from discord.ext import commands, tasks
@@ -15,6 +16,12 @@ class StockMarket(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.db = Database("economy", tables=[stable])
+
+    async def cog_load(self) -> None:
+        await self.update_stocks.start()
+
+    async def cog_unload(self) -> None:
+        await self.update_stocks.stop()
 
 
     @tasks.loop(minutes=15)
