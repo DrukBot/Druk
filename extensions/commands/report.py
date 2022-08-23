@@ -13,7 +13,7 @@ from utils.db import Database, Table, Column
 
 class Report(commands.Cog):
     def __init__(self, bot):
-        self.bot: discord.Client = bot
+        self.bot: commands.Bot = bot
         self.db: Database = Database("report", tables=[report_table])
 
     async def cog_load(self) -> None:
