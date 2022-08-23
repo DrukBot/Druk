@@ -13,8 +13,8 @@ from utils.db import Database, Table, Column
 
 class Report(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.db = Database("report", tables=[report_table])
+        self.bot: discord.Client = bot
+        self.db: Database = Database("report", tables=[report_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()
@@ -61,16 +61,14 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self, ctx: discord.Interaction, channel: discord.TextChannel):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if data:
             view = ChangeChannel(self.db, channel)
             view.message = await ctx.response.send_message(
                 embed=Embed.SUCCESS(
                     "Report System is Already Setup!",
-                    f"Are you sure that you want to change the report channel to: {channel.mention}. If Yes click the button below.",
+                    f"Are you sure that you want to change the report channel from: {self.bot.get_channel(data['channel_id']).mention} to: {channel.mention}. If Yes click the button below.",
                 ),
                 view=view,
             )
@@ -115,9 +113,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def role(self, ctx: discord.Interaction, role: discord.Role):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -128,10 +124,7 @@ class Report(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE report SET role_id = ? WHERE guild_id = ?", (role.id, ctx.guild_id)
-        )
-        await db.commit()
+        await db.update("report", {"role_id": role.id}, f"guild_id = {ctx.guild.id}")
 
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
@@ -155,9 +148,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def toggle(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -168,11 +159,7 @@ class Report(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE report SET toggle = ? WHERE guild_id = ?",
-            (mode.value, ctx.guild_id),
-        )
-        await db.commit()
+        await db.update("report", {'toggle': mode.value}, f"guild_id = {ctx.guild.id}")
 
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
@@ -196,9 +183,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def thread(self, ctx: discord.Interaction, mode: Choice[str]):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -209,11 +194,7 @@ class Report(commands.Cog):
                 ephemeral=True,
             )
 
-        await db.execute(
-            "UPDATE report SET thread_support = ? WHERE guild_id = ?",
-            (mode.value, ctx.guild_id),
-        )
-        await db.commit()
+        await db.update("report", {"thread_support": mode.value}, f"guild_id = {ctx.guild.id}")
 
         await ctx.response.send_message(
             embed=Embed.SUCCESS(
@@ -230,9 +211,7 @@ class Report(commands.Cog):
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setttings(self, ctx: discord.Interaction):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -243,11 +222,11 @@ class Report(commands.Cog):
                 ephemeral=True,
             )
 
-        channel = await self.get_channel(ctx, int(data[1]))
-        role = await self.get_role(ctx, data[2])
+        channel = await self.get_channel(ctx, data['channel_id'])
+        role = await self.get_role(ctx, data['role_id'])
         mention_role = role.mention if role else "**Not Set**"
-        toggle = data[3]
-        thread_support = data[4]
+        toggle = data['toggle']
+        thread_support = data['thread_support']
 
         embed = Embed(
             title="Report System Settings",
@@ -294,9 +273,7 @@ class Report(commands.Cog):
         proof: Optional[discord.Attachment] = None,
     ):
         db = self.db
-        data = await db.execute(
-            "SELECT * FROM report WHERE guild_id = ?", (ctx.guild_id,)
-        )
+        data = await db.fetch("report", f"guild_id = {ctx.guild.id}")
 
         if not data:
             return await ctx.response.send_message(
@@ -318,8 +295,8 @@ class Report(commands.Cog):
 
         try:
 
-            role = await self.get_role(ctx, data[2])
-            channel = await self.get_channel(ctx, int(data[1]))
+            role = await self.get_role(ctx, data['role_id'])
+            channel = await self.get_channel(ctx, data['channel_id'])
 
             if data[4] == "ENABLE":
                 threadSupport = True
@@ -346,9 +323,10 @@ report_table = Table(
         Column("guild_id", int),
         Column("channel_id", int),
         Column("role_id", int),
-        Column("toggle", str),
-        Column("thread_support", str),
+        Column("toggle", "TEXT"),
+        Column("thread_support", "TEXT"),
     ],
+    primary_key="guild_id"
 )
 
 
