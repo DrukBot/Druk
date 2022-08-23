@@ -1,5 +1,3 @@
-from pydoc import describe
-from tkinter import S
 import discord
 import random
 import utils
