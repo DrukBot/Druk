@@ -19,7 +19,7 @@ EXTENSIONS: typing.Final[typing.Tuple[str, ...]] = (
     "extensions.commands.moderation",
     "extensions.commands.economy",
     "extensions.commands.bot_info",
-    "extensions.events.error_handler",
+    "extensions.events.error_handler"
 )
 
 
@@ -41,7 +41,7 @@ class Druk(commands.Bot):
             ),
             allowed_mentions=allowed_mentions,
         )
-
+        discord.utils.setup_logging()
         self.token: str = os.environ["TOKEN"]
         self.root_directory = "."
         self.starting_time = datetime.now().timestamp()
