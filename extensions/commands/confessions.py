@@ -19,7 +19,7 @@ from utils.db import Database, Table, Column
 
 class Confessions(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.db: Database = Database(
             "confessions", tables=[confessions_table]
         )
@@ -64,7 +64,7 @@ class Confessions(commands.Cog):
             await ctx.response.send_message(
                 embed=Embed.ERROR(
                     "Confessions is Already Setup!",
-                    f"Are you sure that you want to change the confession channel to: {channel.mention}. If Yes click the button below.",
+                    f"Are you sure that you want to change the confession channel from: {self.bot.get_channel(data['channel_id']).mention} to: {channel.mention}. If Yes click the button below.",
                 ),
                 view=ChangeChannel(self.db, channel),
             )
@@ -275,10 +275,12 @@ class Confessions(commands.Cog):
     ):
         db = self.db
 
+        await ctx.response.defer()
+
         data = await db.fetch('confessions', f"guild_id = {ctx.guild_id}")
 
         if not data:
-            return await ctx.response.send_message(
+            return await ctx.edit_original_response(
                 embed=Embed.ERROR(
                     "Confessions Not Setup!",
                     "Confessions are not Setup in this server.\n\nUse `/confessions setup` command to setup confessions.",
@@ -286,16 +288,16 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        if data[2] == "DISABLE":
-            return await ctx.response.send_message(
+        if data['toggle'] == "DISABLE":
+            return await ctx.edit_original_response(
                 embed=Embed.ERROR(
                     "Confessions Disabled!", "Confessions are disabled in this server."
                 ),
                 ephemeral=True,
             )
 
-        if data[3] == "DISABLE" and image is not None:
-            return await ctx.response.send_message(
+        if data['allow_img'] == "DISABLE" and image is not None:
+            return await ctx.edit_original_response(
                 embed=Embed.ERROR(
                     "Image Support Disabled!",
                     "Image support for confessions is disabled in this server.",
@@ -303,10 +305,10 @@ class Confessions(commands.Cog):
                 ephemeral=True,
             )
 
-        if data[4] == "ENABLE" and image is not None:
+        if data['detect_nsfw'] == "ENABLE" and image is not None:
             detect = await self.detectNSFW(image.url)
             if detect:
-                return await ctx.response.send_message(
+                return await ctx.edit_original_response(
                     embed=Embed.ERROR(
                         "NSFW Detected!",
                         "NSFW content detected in the image.",
@@ -319,7 +321,7 @@ class Confessions(commands.Cog):
         image_url = image.url if image is not None else None
         channel = ctx.guild.get_channel(int(data[1]))
         if channel is None:
-            return await ctx.response.send_message(
+            return await ctx.edit_original_response(
                 embed=Embed.ERROR(
                     "Confessions Channel Not Found!",
                     "Confessions channel is not found in this server. The channel is invalid or maybe deleted.",
