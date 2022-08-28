@@ -1,28 +1,32 @@
 from pydoc import describe
-from tkinter import S
+from time import sleep
+from datetime import datetime
 import discord
 import random
 import utils
 import typing
+import json
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
+from discord.app_commands import Choice
 
 from components import (
     paginator,
 )
 
 from utils.utils import Embed, log
-from components.economy import RegisterUser
+from components.economy import RegisterUser, UserInventory, CoinflipChallenge
 
 
 class Economy(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.db: utils.Database = utils.Database("economy", [accounts_table, settings_table, user_stock_table])
 
     async def cog_load(self) -> None:
         await self.db.connect()
+        self.connection_refresh.start()
 
     async def register_user(self, ctx: discord.Interaction, user: discord.User):
         if user.bot:
@@ -33,7 +37,24 @@ class Economy(commands.Cog):
             return
 
         embed = Embed(title="Breaking these rules can be resulting in ban/deletion/reset of you account.", description="RULES TO BE FOLLOWED").set_author(name="Druk Rules!", icon_url=self.bot.user.display_avatar.url)
-        await ctx.response.send_message(content=user.mention, embed=embed, view=RegisterUser(user, self.db))
+        await ctx.response.send_message(embed=embed, view=RegisterUser(user, self.db))
+
+    
+    async def add_item(self, ctx: discord.Interaction, user: discord.User, name: str, description: str, value: int = None, amount: int = 1):
+        acc = await self.get_user_account(ctx, user)
+        if acc is None:
+            return None
+        inv = json.loads(acc['inventory'])
+        try:
+            inv[name]['amount'] += amount
+            if value is not None:
+                inv[name]['value'] = value
+        except KeyError:
+            inv[name] = {'description': description, 'amount': amount, 'value': value }
+            finv = json.dumps(inv)
+            await self.db.update('accounts', {'inventory': finv}, f"user_id = {user.id}")
+            return True
+
 
 
     async def get_user_account(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
@@ -45,7 +66,7 @@ class Economy(commands.Cog):
             return None
 
 
-    async def get_user_settings(self, ctx, user: typing.Union[discord.User, discord.Member]):
+    async def get_user_settings(self, ctx: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
         s = await self.db.fetch('settings', f"user_id = {user.id}")
 
         if s:
@@ -53,6 +74,19 @@ class Economy(commands.Cog):
         embed = Embed(description=f"{user} is not a registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
         await ctx.response.send_message(embed=embed)
 
+
+    @tasks.loop(minutes=5)
+    async def connection_refresh(self):
+        await self.db.close()
+        sleep(5)
+        await self.db.connect()
+        await self.bot.log_webhook(embed=utils.Embed.SUCCESS("Complete", f"`drukeconomy` connection refreshed at <t:{round(datetime.now().timestamp())}:T>"))
+
+
+    @connection_refresh.before_loop
+    async def before_refresh(self):
+        await self.bot.wait_until_ready()
+    
 
     @app_commands.command(name="register")
     async def register(self, ctx: discord.Interaction):
@@ -67,7 +101,7 @@ class Economy(commands.Cog):
     ):
         acc = await self.get_user_account(ctx, ctx.user)
         if acc is None:
-            return
+            return await ctx.response.send_message("User is not registered!")
         cs = random.randint(50, 400)
         await self.db.update('accounts', {'coins': acc['coins']+cs}, f"user_id = {ctx.user.id}")
         await ctx.response.send_message(
@@ -134,6 +168,8 @@ class Economy(commands.Cog):
             return
 
         sa = await self.get_user_ccount(ctx, ctx.user)
+        if sa is None:
+            return await ctx.response.send_message("User is not registered!")
         ra = await self.get_user_account(ctx, recipient)
 
         if sa['coins'] < amount:
@@ -187,6 +223,10 @@ class Economy(commands.Cog):
     async def buyStock(self, ctx: discord.Interaction):
         await ctx.response.defer()
 
+        acc = self.get_user_account(ctx, ctx.user)
+        if acc is None:
+            return await ctx.response.send_message("User is not registered!")
+
         pag = commands.Paginator('', '', max_size=100)
         stocks = await self.db.fetch("stock_info", all=True)
         for i, stock in enumerate(stocks):
@@ -197,6 +237,106 @@ class Economy(commands.Cog):
 
         await ctx.edit_original_response(view=view, embed=stock_embed)
 
+    @app_commands.command(name="inventory")
+    async def inventory(self, ctx: discord.Interaction):
+        await ctx.response.defer()
+
+        user_inv = await self.get_user_account(ctx, ctx.user)
+        if user_inv is None:
+            return await ctx.edit_original_response(content="User is not registered!")
+        if user_inv['inventory'] is None:
+            return await ctx.edit_original_response(embed=utils.Embed.ERROR("Woah", "You do not have any items!"))
+        items: object = json.loads(user_inv['inventory'])
+        embed = utils.Embed(title="Inventory")
+        for item, item_data in items.items():
+            embed.add_field(name=item, value=f"Amount: {item_data['amount']}\nValue: {item_data['value']}", inline=False)
+
+        await ctx.edit_original_response(embed=embed, view=UserInventory(ctx.user, self.db))
+
+    
+    @app_commands.command(name="testing-items")
+    async def testingItems(self, ctx: discord.Interaction, name: str, description: str, value: int):
+        if ctx.user.id not in self.bot.owner_ids:
+            return await ctx.response.send_message(embed=utils.Embed.ERROR("Whoa", "You can't use this command, you aren't an owner"))
+        
+        resp = await self.add_item(ctx, ctx.user, name, description, value)
+
+        if resp is None:
+            await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", "Something went wrong trying to do that"))
+        else:
+            await ctx.response.send_message(embed=utils.Embed.SUCCESS("Success!", "The item {} with description {} was added successfully".format(name, description)))
+
+
+    @app_commands.command(name="networth")
+    async def networth(self, ctx: discord.Interaction, user: discord.User = None):
+        return await ctx.response.send_message(embed=utils.Embed.ERROR("Whoops", "This command is disabled at the moment"))
+
+
+        await ctx.response.defer()
+
+        msg_content = None
+
+        user = ctx.user or user
+        acc = await self.get_user_account(ctx, user)
+        if acc is None:
+            return ctx.edit_original_response(content="User is not registered!")
+        settings = await self.get_user_settings(ctx, user)
+
+        if settings['privacy'] and ctx.user.id != user.id:
+            return await ctx.edit_original_response(embed=utils.Embed.ERROR("Whoops", f"{user.mention} has their profile private!"))
+        
+        if settings['pings'] and ctx.user.id != user.id:
+            msg_content = user.mention
+
+
+    @app_commands.command(name="coinflip")
+    @app_commands.choices(
+        side=[
+            Choice(name="Heads", value="Heads"),
+            Choice(name="Tails", value="Tails")
+        ]
+    )
+    async def coinflip(self, ctx: discord.Interaction, side: Choice[str], opponent: discord.User, bet: int):
+        if opponent.bot:
+            return await ctx.response.send_message(embed=utils.Embed.ERROR("Woah", "You can't go against a bot!"), ephemeral=True)
+
+        acc = await self.get_user_account(ctx, ctx.user)
+        if acc is None:
+            return await ctx.response.send_message(f"{ctx.user.mention} is not registered!")
+        acc_settings = await self.get_user_settings(ctx, ctx.user)
+        op_acc = await self.get_user_account(ctx, opponent)
+        if op_acc is None:
+            return await ctx.response.send_message(f"{opponent.mention} is not registered!")
+        op_acc_settings = await self.get_user_settings(ctx, opponent)
+        if bet < 1:
+            return await ctx.response.send_message(f"Woah there! You can't bet less than 1 coin")
+
+        if acc['coins'] < bet:
+            if acc_settings['pings']:
+                return await ctx.response.send_message(f"Whoops, {ctx.user.mention} does not have enough coins for this")
+            else:
+                return await ctx.response.send_message(f"Whoops, {ctx.user} does not have enough coins for this")
+        
+
+        if op_acc['coins'] < bet:
+            if op_acc_settings['pings']:
+                return await ctx.response.send_message(f"Whoops, {opponent.mention} does not have enough coins for this")
+            else:
+                return await ctx.response.send_message(f"Whoops, {opponent} does not have enough coins for this")
+
+        opponent_coin = "Heads" if side.value == "Tails" else "Tails"
+        
+        if op_acc_settings['pings']:
+            embed = utils.Embed(title="Coinflip", description=f"{ctx.user.mention} has invited you to a duel")
+            await ctx.response.send_message(content= opponent.mention, embed=embed, view=CoinflipChallenge(ctx.user, side.value, opponent, opponent_coin, bet, self.db))
+        else:
+            embed = utils.Embed(title="Coinflip", description=f"{ctx.user.mention} has invited you to a duel")
+            await ctx.response.send_message(embed=embed, view=CoinflipChallenge(ctx.user, side.value, opponent, opponent_coin, bet, self.db))
+
+        
+        
+
+
 
 accounts_table = utils.Table(
     "accounts",
@@ -204,6 +344,7 @@ accounts_table = utils.Table(
         utils.Column("user_id", int),
         utils.Column("coins", int),
         utils.Column("cash", int),
+        utils.Column("inventory", "TEXT")
     ],
     primary_key="user_id",
 )
@@ -221,12 +362,11 @@ settings_table = utils.Table(
 user_stock_table = utils.Table(
     "user_stocks",
     [
-        utils.Column("uid", "SERIAL"),
         utils.Column("user_id", int),
-        utils.Column("stock_id", "TEXT"),
-        utils.Column("total_owned", int)
+        utils.Column("total_owned", int),
+        utils.Column("stocks", "TEXT")
     ],
-    primary_key="uid"
+    primary_key="user_id"
 )
 
 async def setup(bot):
