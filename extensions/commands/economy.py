@@ -1,5 +1,3 @@
-from pydoc import describe
-from time import sleep
 from datetime import datetime
 import discord
 import random

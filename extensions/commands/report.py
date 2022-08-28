@@ -323,8 +323,8 @@ report_table = Table(
         Column("guild_id", int),
         Column("channel_id", int),
         Column("role_id", int),
-        Column("toggle", "TEXT"),
-        Column("thread_support", "TEXT"),
+        Column("toggle", str),
+        Column("thread_support", str),
     ],
     primary_key="guild_id"
 )
