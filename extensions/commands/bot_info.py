@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from components import paginator
-
+from humanfriendly import format_timespan
 import utils
 from pathlib import Path
 import cpuinfo
@@ -30,10 +30,10 @@ class botInfo(commands.Cog, name="Bot Info"):
         self,
         ctx: discord.Interaction
     ):
-        uptime = datetime.now().timestamp() - self.bot.starting_time
+        botuptime = datetime.now().timestamp() - self.bot.starting_time
 
         uptime_embed = discord.Embed(title="Uptime", cor=discord.Color.red())
-        uptime_embed.add_field(name="Up for", value=f"{uptime} seconds")
+        uptime_embed.add_field(name="Up for", value=f"{format_timespan(botuptime)}")
 
         await ctx.response.send_message(embed=uptime_embed)
 
