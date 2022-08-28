@@ -23,7 +23,8 @@ class ChangeChannel(discord.ui.View):
             embed=Embed.SUCCESS(
                 "Updated Confession Channel!",
                 f"{self.channel.mention} is now configured as confession channel.",
-            )
+            ),
+            view=self
         )
 
     async def interaction_check(self, ctx: discord.Interaction):
@@ -69,7 +70,7 @@ class SendConfession(discord.ui.Modal, title="Send Confession"):
             embed.set_image(url=image_url)
 
         await channel.send(embed=embed)
-        await ctx.response.send_message(
+        await ctx.response.edit_message(
             embed=Embed.SUCCESS(
                 "Confession Sent!", "Your anonymous confession has been sent."
             ),
