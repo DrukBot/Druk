@@ -85,12 +85,11 @@ class Druk(commands.Bot):
         await self.tree.sync()
 
     async def on_ready(self) -> None:
+        self._log_webhook = discord.Webhook.partial(id=int(os.environ["LOG_WEBHOOK_ID"]), token=os.environ["LOG_WEBHOOK_TOKEN"], session=self.http._HTTPClient__session)
         utils.log(f"Logged in as {self.user}")
 
     async def log_webhook(self, embed: discord.Embed, *, content: typing.Optional[str]=None, console = False):
-        session = self.http._HTTPClient__session
-        webhook = discord.Webhook.partial(id=int(os.environ["LOG_WEBHOOK_ID"]), token=os.environ["LOG_WEBHOOK_TOKEN"], session=session)
-        await webhook.send(content=content, embed=embed)
+        await self._log_webhook.send(content=content, embed=embed)
 
     @tasks.loop(minutes=10)
     async def update_databases(self):
@@ -98,7 +97,7 @@ class Druk(commands.Bot):
             if d:=getattr(cog, 'db', None):
                 await d.close()
                 await d.connect()
-                await self.log_webhook(embed=utils.Embed.SUCCESS("Complete", f"`{d.name}` connection refreshed at <t:{round(datetime.now().timestamp())}:T>"))
+                await self.log_webhook(embed=utils.Embed.SUCCESS("Database Refresh!", f"`{d.name}` db refreshed at <t:{round(datetime.now().timestamp())}:T>"))
 
     @update_databases.before_loop
     async def before_update_databases(self):
