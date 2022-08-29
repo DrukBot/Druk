@@ -5,6 +5,7 @@ __all__ = (
     "COLOURS",
 )
 
+from operator import iconcat
 import os
 import dotenv
 import typing
@@ -21,7 +22,6 @@ LOG_LEVELS = {
 }
 
 
-
 def log(text: str, level: str = "info"):
     print(
         colour(
@@ -29,7 +29,7 @@ def log(text: str, level: str = "info"):
             colour=LOG_LEVELS.get(level, "info"),
         )
     )
-        
+
 
 def colour(text: str, colour: str):
     return getattr(Fore, colour.upper(), "") + text + Style.RESET_ALL
@@ -41,8 +41,13 @@ class COLOURS:
 
 
 class emoji:
-    SuccessURL = discord.PartialEmoji(name="success", animated=False, id=1004762059981983754).url
-    ErrorURL = discord.PartialEmoji(name="wrong", animated=False, id=1004762039618633839)
+    SuccessURL = discord.PartialEmoji(
+        name="success", animated=False, id=1004762059981983754
+    ).url
+    ErrorURL = discord.PartialEmoji(
+        name="wrong", animated=False, id=1004762039618633839
+    )
+
 
 COLOURS = COLOURS()
 
@@ -59,7 +64,7 @@ class Embed(discord.Embed):
         embed.set_author(
             name=title,
             icon_url=discord.PartialEmoji(
-                name="success", id="1004762059981983754", animated=False
+                name="Success", id="1004762059981983754", animated=False
             ).url,
         )
         return embed
@@ -70,7 +75,29 @@ class Embed(discord.Embed):
         embed.set_author(
             name=title,
             icon_url=discord.PartialEmoji(
-                name="wrong", id="1004762039618633839", animated=False
+                name="Wrong", id="1004762039618633839", animated=False
+            ).url,
+        )
+        return embed
+
+    @classmethod
+    def WARN(cls, title: str, description: str):
+        embed = cls(description=description, colour=COLOURS.yellow)
+        embed.set_author(
+            name=title,
+            icon_url=discord.PartialEmoji(
+                name="Warn", animated=False, id=1013862574632210443
+            ).url,
+        )
+        return embed
+
+    @classmethod
+    def INFO(cls, title: str, description: str):
+        embed = cls(description=description, colour=COLOURS.blue)
+        embed.set_author(
+            name=title,
+            icon_url=discord.PartialEmoji(
+                name="Info", animated=False, id=1013862488892248164
             ).url,
         )
         return embed
