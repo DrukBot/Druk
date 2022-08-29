@@ -98,7 +98,7 @@ class Druk(commands.Bot):
             if d:=getattr(cog, 'db', None):
                 await d.close()
                 await d.connect()
-                await self.log_webhook(embed=utils.Embed.SUCCESS("Complete", f"`drukeconomy` connection refreshed at <t:{round(datetime.now().timestamp())}:T>"))
+                await self.log_webhook(embed=utils.Embed.SUCCESS("Complete", f"`{d.name}` connection refreshed at <t:{round(datetime.now().timestamp())}:T>"))
 
     @update_databases.before_loop
     async def before_update_databases(self):
