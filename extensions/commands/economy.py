@@ -25,7 +25,6 @@ class Economy(commands.Cog):
 
     async def cog_load(self) -> None:
         await self.db.connect()
-        self.connection_refresh.start()
 
     async def register_user(self, ctx: discord.Interaction, user: discord.User):
         if user.bot:
@@ -72,19 +71,6 @@ class Economy(commands.Cog):
             return s
         embed = Embed(description=f"{user} is not a registered user.\n\nUse `/register` command to create you account.").set_author(name="User Not Registered!", icon_url=user.display_avatar.url)
         await ctx.response.send_message(embed=embed)
-
-
-    @tasks.loop(minutes=5)
-    async def connection_refresh(self):
-        await self.db.close()
-        sleep(5)
-        await self.db.connect()
-        await self.bot.log_webhook(embed=utils.Embed.SUCCESS("Complete", f"`drukeconomy` connection refreshed at <t:{round(datetime.now().timestamp())}:T>"))
-
-
-    @connection_refresh.before_loop
-    async def before_refresh(self):
-        await self.bot.wait_until_ready()
     
 
     @app_commands.command(name="register")

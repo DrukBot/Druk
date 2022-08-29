@@ -6,7 +6,7 @@ from discord import app_commands
 from utils.utils import Embed
 from components.meta import CodeRunModal
 
-from time import time
+import time
 from datetime import datetime
 from humanfriendly import format_timespan
 
@@ -54,10 +54,13 @@ class Meta(commands.Cog):
 
         await ctx.response.send_message(embed=embed)
 
-    @meta.command(name="ping", description="Tells you the latency of the bot")
+    @meta.command(name="ping", description="Returns the latency of the bot")
     async def ping(self, ctx: discord.Interaction):
-        embed = Embed(description=f"Latency: `{self.bot.latency*1000:,.0f} ms`")
+        f = time.perf_counter()
+        embed = Embed(description=f"Latency: `{self.bot.latency*1000:.0f} ms`")
         await ctx.response.send_message(content="Pong!", embed=embed)
+        embed.description += f'API Latency: `{(f-time.perf_counter())*1000:.0f}`'
+        await ctx.edit_original_response(embed=embed)
 
     @meta.command(name="run", description="Run python code!!")
     async def run(self, ctx: discord.Interaction):
