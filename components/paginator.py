@@ -139,7 +139,7 @@ class BuyStockPaginatorView(discord.ui.View):
         await self.update_message(interaction)
 
     @discord.ui.button(label = "Select", style = discord.ButtonStyle.green)
-    async def page_number(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def select_stock(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         userStocks = await self.db.fetch("user_stocks", f"user_id={interaction.user.id} AND stock_id='{list(enumerate(self.cache))[self.page][1]['stock_id']}'")
         userProfile = await self.db.fetch("accounts", f"user_id={interaction.user.id}")
@@ -172,3 +172,4 @@ class BuyStockPaginatorView(discord.ui.View):
             return await interaction.response.send_message("This is not for you", ephemeral = True)
         self.page = self.pages - 1
         await self.update_message(interaction)
+
