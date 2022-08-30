@@ -8,6 +8,7 @@ _all_ = (
 
 import typing
 import os
+import asyncio
 import asyncpg
 import datetime
 
@@ -58,6 +59,11 @@ class Database:
         self.name = name
         self.conn = None
         self.tables = tables
+        self.connected = asyncio.Event()
+
+    async def wait_until_connected(self):
+        if not self.connected.is_set:
+            await self.connected.wait()
 
     async def connect(self) -> Database:
         """Connect to the database."""
@@ -65,16 +71,24 @@ class Database:
             f'postgres://{DBUSER}:{DBPWD}@{DBURL}/{"druk"+self.name}')
         for table in self.tables:
             await self.create_table(table)
+        self.connected.set()
         return self
 
     async def close(self):
         """Closes the database connection."""
         await self.conn.close()
+        self.connected.clear()
+
+    async def refresh(self) -> Database:
+        await self.wait_until_connected()
+        await self.close()
+        await self.connect()
 
     async def execute(
         self, *args, **kwargs
     ):
         """Execute a SQL query."""
+        await self.wait_until_connected()
         return await self.conn.execute(*args, **kwargs)
 
     async def create_table(self, table: Table):
